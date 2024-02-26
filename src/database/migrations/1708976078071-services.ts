@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
-export class Users1708975325676 implements MigrationInterface {
+export class Services1708976078071 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: "users",
+                name: "services",
                 columns: [
                     {
                         name: "id",
@@ -17,22 +17,17 @@ export class Users1708975325676 implements MigrationInterface {
                     {
                         name: "name",
                         type: "varchar",
-                        length: "100"
+                        length: "250"
                     },
                     {
-                        name: "email",
-                        type: "varchar",
-                        length: "100"
+                        name: "description",
+                        type: "text"
                     },
                     {
-                        name: "password",
-                        type: "varchar",
-                        length: "225"
-                    },
-                    {
-                        name: "role_id",
-                        type: "int",
-                        default: 4
+                        name: "price",
+                        type: "decimal",
+                        precision: 10,
+                        scale: 2
                     },
                     {
                         name: "created_at",
@@ -46,21 +41,13 @@ export class Users1708975325676 implements MigrationInterface {
                         onUpdate: "now()"
                     }
                 ],
-                foreignKeys: [
-                    {
-                        columnNames: ["role_id"],
-                        referencedColumnNames: ["id"],
-                        referencedTableName: "roles",
-                        onDelete: "CASCADE"
-                    }
-                ]
             }),
             true
         );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable("users");
+        await queryRunner.dropTable("services");
     }
 
 }
