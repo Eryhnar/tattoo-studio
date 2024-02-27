@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Catalogue } from "./Catalogue";
 
-@Entity()
+@Entity("services")
 export class Service extends BaseEntity{
     @PrimaryGeneratedColumn()
     id!: number;
