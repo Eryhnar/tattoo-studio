@@ -1,6 +1,7 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { User } from "../models/User";
-import { validateEmail, validateUserName } from "../helpers/validation-utilities";
+import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
+import { comparePassword } from "../helpers/password-utilities";
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -70,6 +71,66 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
         return res.status(200).json({ success: true, message: "User updated successfully" });
 
     } catch (error) {
+
         return res.status(500).json({ success: false, message: "Error updating user", error: error });
+
+    }
+};
+
+export const updateUserPassword = async (req: Request, res: Response) => {
+    try {
+        
+        const targetUserId = parseInt(req.params.id);
+        const { oldPassword, newPassword, newPasswordRepeat } = req.body;
+
+        const targetUser = await User.findOneBy({ id: targetUserId });
+        if (!targetUser) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+        if (newPassword !== newPasswordRepeat) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Passwords do not match" 
+                }
+            );
+        }
+        if (!validatePassword(newPassword)) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid password" 
+                }
+            );
+        };
+        if (!await comparePassword(oldPassword, targetUser.password)) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid old password" 
+                }
+            );
+        }
+        User.update({ id: targetUserId }, { password: newPassword });
+        return res.status(200).json(
+            { 
+                success: true, 
+                message: "User password updated successfully" 
+            }
+        );
+
+    } catch (error) {
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error updating user password", 
+                error: error 
+            }
+        );
     }
 };
