@@ -1,38 +1,9 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import { hashPassword } from "../helpers/password-utilities";
 import { User } from "../models/User";
+import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
 
-//MOVE TO HELPERS
-const nameMaxLength = 50;
-const validateUserName = (name: string) => {
-    if(name == null || name.length > nameMaxLength || /[^ \p{L}]/gu.test(name)){ // consider spaces validation if surname is added
-        return false;
-    }
-    return true;
-};
-
-const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // considering adding a domain validation
-    if(email == null || email.length > 100 || !emailRegex.test(email)){
-        return false;
-    }
-    return true;
-};
-
-const validatePassword = (password: string) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,14}$/;
-    if(password == null || password.length < 8 || password.length > 14 || !passwordRegex.test(password)){
-        return false;
-    }
-    return true;
-};
-
-const hashPassword = async (password: string) => {
-    const saltRounds = 10;
-    return await bcrypt.hash(password, saltRounds);
-};
-
-
+//register
 export const register = async (req: Request, res: Response) => {
     try {
         let { name, email, password } = req.body;
@@ -108,3 +79,4 @@ export const register = async (req: Request, res: Response) => {
     }
 }
 
+//login
