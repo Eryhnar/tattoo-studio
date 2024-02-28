@@ -1,6 +1,7 @@
 import express from 'express';
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { register } from "./controllers/auth-controller";
+import { getUsers } from './controllers/user-controller';
 
 export const app = express();
 
@@ -12,4 +13,7 @@ app.post("/roles", createRole);
 app.put("/roles", updateRole);
 
 //auth routes
-app.post("/auth/register", register);
+app.post("/api/register", register);
+
+//user routes
+app.get("/api/users", getUsers);
