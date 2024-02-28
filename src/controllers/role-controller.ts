@@ -3,6 +3,9 @@ import { Role } from "../models/Role";
 
 export const getRoles = async (req: Request, res: Response) => {
     try {
+
+        // validate SUPER ADMIN credentials before getting roles
+
         const roles = await Role.find();
         return res.json(roles);
     } catch (error) {
@@ -19,6 +22,9 @@ export const getRoles = async (req: Request, res: Response) => {
 export const createRole = async (req: Request, res: Response) => {
     try {
         let { name } = req.body;
+
+        // validate token??
+
         name = name.trim().toLowerCase();
         //if(name == null || name.length > 50 || name.includes(" ") || /[!@#$%^&*(),.?":{}|<>[\]]/.test(name) || /[0-9]/.test(name)){
         if(name == null || name.length > 50 || name.includes(" ") || /[^ \p{L}]/gu.test(name)){
@@ -53,6 +59,8 @@ export const createRole = async (req: Request, res: Response) => {
 
 export const updateRole = async (req: Request, res: Response) => {
     try {
+        // validate token before updating role
+
         const { targetRole, name } = req.body;
         const trimmedName = name.trim().toLowerCase();
 
