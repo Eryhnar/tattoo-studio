@@ -134,3 +134,40 @@ export const updateUserPassword = async (req: Request, res: Response) => {
         );
     }
 };
+
+export const deleteUserById = async (req: Request, res: Response) => {
+    try {
+        
+        const targetUserId = parseInt(req.params.id);
+        const targetUser = await User.findOneBy({ id: targetUserId });
+
+        if (!targetUser) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+
+        await User.delete({ id: targetUserId });
+        return res.status(200).json( //200 or 204?
+            { 
+                success: true, 
+                message: "User deleted successfully" 
+            }
+        );
+
+    } catch (error) {
+
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error deleting user", 
+                error: error 
+            }
+        );
+
+    }
+};
+    

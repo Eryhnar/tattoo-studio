@@ -1,7 +1,7 @@
 import express from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { register } from "./controllers/auth-controller";
-import { getUsers, updateUserById, updateUserPassword } from "./controllers/user-controller";
+import { deleteUserById, getUsers, updateUserById, updateUserPassword } from "./controllers/user-controller";
 
 export const app = express();
 
@@ -19,3 +19,4 @@ app.post("/api/register", register);
 app.get("/api/users", getUsers);
 app.put("/api/users/:id", updateUserById);
 app.put("/api/users/:id", updateUserPassword);
+app.delete("/api/users/:id", deleteUserById);
