@@ -9,8 +9,9 @@ export const register = async (req: Request, res: Response) => {
         let { name, email, password } = req.body;
         
         if (name) { //can be avoided if I force the user to not enter a name during registration OR force them to enter a name in the db and model
+
             name = name.trim(); //should it capitalize the first letter of the name?
-            // validate token??
+
             if (!validateUserName(name)) {
                 return res.status(400).json(
                     { 
@@ -67,6 +68,8 @@ export const register = async (req: Request, res: Response) => {
                 message: `User ${newUser.name} created successfully`,
             }
         );
+
+        
 
     } catch (error) {
         return res.status(500).json(
