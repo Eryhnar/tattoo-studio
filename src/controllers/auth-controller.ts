@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
-import { hashPassword } from "../helpers/password-utilities";
+import { comparePassword, hashPassword } from "../helpers/password-utilities";
 import { User } from "../models/User";
 import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
+import jwt from "jsonwebtoken";
 
 //register
 export const register = async (req: Request, res: Response) => {
     try {
-        let { name, email, password } = req.body;
+        const { name, email, password } = req.body;
         
-        if (name) { //can be avoided if I force the user to not enter a name during registration OR force them to enter a name in the db and model
+        const treatedName = name?.trim(); //should it capitalize the first letter of the name?
+        if (treatedName) { //can be avoided if I force the user to not enter a name during registration OR force them to enter a name in the db and model
 
-            name = name.trim(); //should it capitalize the first letter of the name?
 
-            if (!validateUserName(name)) {
+            if (!validateUserName(treatedName)) {
                 return res.status(400).json(
                     { 
                         success: false,
@@ -22,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
             };
         }
 
-        // validate email
+        // validate email    JOIN email and password validation
         if (!validateEmail(email)) {
             return res.status(400).json(
                 { 
@@ -56,7 +57,7 @@ export const register = async (req: Request, res: Response) => {
 
         const newUser = await User.create(
             {
-                name: name,  
+                name: treatedName,  
                 email: email,
                 password: hashedPassword
             }
@@ -69,13 +70,13 @@ export const register = async (req: Request, res: Response) => {
             }
         );
 
-        
+
 
     } catch (error) {
         return res.status(500).json(
             { 
                 success: false,
-                message: "Error creating role",
+                message: "Error creating user",
                 error: error
             }
         );
@@ -83,3 +84,72 @@ export const register = async (req: Request, res: Response) => {
 }
 
 //login
+export const login = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json(
+                { 
+                    success: false,
+                    message: "Please enter email and password"
+                }
+            );
+        }
+
+        if (!validateEmail(email) || !validatePassword(password)) {
+            return res.status(400).json(
+                { 
+                    success: false,
+                    message: "Invalid email or password" //message might not be accurate since it checks format and not values
+                }
+            );
+        }
+
+        const user = await User.findOne(
+            {
+                where: { email: email }
+            }
+        );
+
+        if (!user) {
+            return res.status(404).json(
+                { 
+                    success: false,
+                    message: "No user exists with that email" //should I be less specific?
+                }
+            );
+        }
+
+        if (await comparePassword(password, user.password)) {
+            //generate token
+            const token = jwt.sign(
+                { userId: user.id,
+                  roleName: user.role.name
+                },
+                process.env.JWT_SECRET as string,
+                { 
+                    expiresIn: "2h" 
+                }
+            );
+
+            return res.status(200).json(
+                { 
+                    success: true,
+                    message: "Login successful",
+                    token: token  //CAREFUL WITH SENDING IT LIKE THIS
+                }
+            );
+        }
+
+    
+    } catch (error) {
+        return res.status(500).json(
+            { 
+                success: false,
+                message: "Error logging in",
+                error: error
+            }
+        );
+    }
+}

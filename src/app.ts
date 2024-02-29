@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
-import { register } from "./controllers/auth-controller";
+import { login, register } from "./controllers/auth-controller";
 import { deleteUserById, getUsers, updateUserById, updateUserPassword } from "./controllers/user-controller";
 
 export const app: Application = express();
@@ -14,7 +14,7 @@ app.get("/roles", getRoles);
 
 //auth routes
 app.post("/api/register", register);
-//login + token
+app.post("/api/login", login);
 
 //user routes
 app.get("/api/users", getUsers);

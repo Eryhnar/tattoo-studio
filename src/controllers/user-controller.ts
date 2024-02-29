@@ -36,6 +36,7 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 };
 
+// REHACER
 export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const targetUserId = parseInt(req.params.id);
@@ -77,6 +78,8 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
     }
 };
 
+
+//// REHACER
 export const updateUserPassword = async (req: Request, res: Response) => {
     try {
         
