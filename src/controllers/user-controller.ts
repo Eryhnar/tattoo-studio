@@ -54,7 +54,22 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 };
 
-// REHACER
+export const getProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = req.tokenData.userId;
+        const user = await User.findOne({ where:{id: userId} });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "User retrieved successfully", data: user });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Error fetching user", error: error });
+    }
+}
+
 export const updateProfile = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const userId = req.tokenData.userId;
