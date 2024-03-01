@@ -110,48 +110,6 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
     }
 };
 
-export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
-    try {
-        const targetUserId = parseInt(req.params.id);
-        let { name, email } = req.body;
-
-        const targetUser = await User.findOneBy({ id: targetUserId });
-        if (!targetUser) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-
-        let updateFields: { [key: string]: string } = {};
-
-        if (name) {
-            name = name.trim();
-            updateFields["name"] = name;
-        }
-
-        if (email) {
-            email = email.trim();
-            updateFields["email"] = email;
-        }
-
-        if (updateFields["name"] && !validateUserName(updateFields["name"])) {
-            return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
-        }
-
-        if (updateFields["email"] && !validateEmail(updateFields["email"])) {
-            return res.status(400).json({ success: false, message: "Invalid email" });
-        }
-
-        await User.update({ id: targetUserId }, updateFields);
-
-        return res.status(200).json({ success: true, message: "User updated successfully" });
-
-    } catch (error) {
-
-        return res.status(500).json({ success: false, message: "Error updating user", error: error });
-
-    }
-};
-
-
 //// REHACER
 export const updateProfilePassword = async (req: Request, res: Response) => {
     try {
@@ -208,6 +166,100 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
                 error: error 
             }
         );
+    }
+};
+
+export const deactivateUser = async (req: Request, res: Response) => {
+    try {
+        const password = req.body.password;
+        const targetUserId = req.tokenData.userId;
+        const targetUser = await User.findOneBy({ id: targetUserId });
+
+        if (!targetUser) { //should not trigger and be redundant
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+
+        if (!validatePassword(password)) { //join with next if?
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid credentials" 
+                }
+            );
+        }
+
+        if (!await comparePassword(password, targetUser.password)) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid credentials" 
+                }
+            );
+        }
+
+        await User.update({ id: targetUserId }, { isActive: false });
+
+        return res.status(200).json(
+            { 
+                success: true, 
+                message: "User deactivated successfully" 
+            }
+        );
+
+    } catch (error) {
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error deactivating user", 
+                error: error 
+            }
+        );
+    }
+}
+
+export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
+    try {
+        const targetUserId = parseInt(req.params.id);
+        let { name, email } = req.body;
+
+        const targetUser = await User.findOneBy({ id: targetUserId });
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        let updateFields: { [key: string]: string } = {};
+
+        if (name) {
+            name = name.trim();
+            updateFields["name"] = name;
+        }
+
+        if (email) {
+            email = email.trim();
+            updateFields["email"] = email;
+        }
+
+        if (updateFields["name"] && !validateUserName(updateFields["name"])) {
+            return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
+        }
+
+        if (updateFields["email"] && !validateEmail(updateFields["email"])) {
+            return res.status(400).json({ success: false, message: "Invalid email" });
+        }
+
+        await User.update({ id: targetUserId }, updateFields);
+
+        return res.status(200).json({ success: true, message: "User updated successfully" });
+
+    } catch (error) {
+
+        return res.status(500).json({ success: false, message: "Error updating user", error: error });
+
     }
 };
 
