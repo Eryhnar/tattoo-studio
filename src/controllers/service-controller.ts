@@ -32,7 +32,7 @@ export const createService = async (req: Request, res: Response) => {
                 }
             );
         }
-        
+
         const service = await Service.create(
             {
                 name: name,
@@ -54,5 +54,24 @@ export const createService = async (req: Request, res: Response) => {
                 error: error
             }
         );
+    }
+}
+
+export const getServices = async (req: Request, res: Response) => {
+    try {
+        const services = await Service.find();
+        return res.status(200).json(
+            { 
+                success: true,
+                message: "Services retrieved successfully",
+                data: services
+            }
+        );
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching services",
+            error: error
+        });
     }
 }

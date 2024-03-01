@@ -2,7 +2,8 @@ import express, { Application } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
-import { createService } from "./controllers/service-controller";
+import { createService, getServices } from "./controllers/service-controller";
+import { get } from "http";
 
 export const app: Application = express();
 
@@ -29,10 +30,14 @@ app.delete("/api/users/:id", deleteUserById); //admin
 //Service routes
 //create service
 app.post("/api/services", createService);
-//delete service
-//update service
-//get service by id
 //get all services
+app.get("/api/services", getServices);
+//update service
+
+//delete service
+
+
+//get service by id
 //get service by name // not necesary
 
 //catalogue routes
