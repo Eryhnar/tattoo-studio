@@ -17,10 +17,13 @@ app.post("/api/register", register);
 app.post("/api/login", login);
 
 //user routes
-app.get("/api/users", getUsers);
-app.put("/api/users/:id", updateUserById);
-app.put("/api/users/:id", updateUserPassword);
-app.delete("/api/users/:id", deleteUserById);
+app.get("/api/users/profile", getProfile) //user
+app.put("/api/users/profile", updateProfile) //user
+app.put("/api/users/profile/password", updateProfilePassword); //user
+app.delete("/api/users/profile", deleteUserById); //user
+app.get("/api/users", getUsers); //admin 
+app.put("/api/users/:id", updateUserById); //admin
+app.delete("/api/users/:id", deleteUserById); //admin
 
 //Service routes
 //create service

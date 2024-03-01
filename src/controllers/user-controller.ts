@@ -2,12 +2,30 @@ import { Request, Response } from "express";
 import { User } from "../models/User";
 import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
 import { comparePassword } from "../helpers/password-utilities";
+import { FindOperator } from "typeorm/find-options/FindOperator";
+import { Like } from "typeorm";
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
+        interface queryFiltersI {
+            name?: FindOperator<string>,
+            email?: FindOperator<string>
+        }
+
+        const queryFilters: queryFiltersI = {}
+
+        if (req.query.name) {
+            queryFilters.name = Like("%"+req.query.name+"%");
+        }
+
+        if (req.query.email) {
+            queryFilters.email = Like("%"+req.query.email.toString()+"%");
+        }
+
         const users = await User.find(
             
             {
+                where: queryFilters,
                 select: {
                 id: true,
                 name: true,
