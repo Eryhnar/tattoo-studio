@@ -55,6 +55,46 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 // REHACER
+export const updateProfile = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
+    try {
+        const userId = req.tokenData.userId;
+        let { name, email } = req.body;
+
+        if (!await User.findOne({ where: {id: userId} })) { //redundant
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        let updateFields: { [key: string]: string } = {};
+
+        if (name) {
+            name = name.trim();
+            updateFields["name"] = name;
+        }
+
+        if (email) {
+            email = email.trim();
+            updateFields["email"] = email;
+        }
+
+        if (updateFields["name"] && !validateUserName(updateFields["name"])) {
+            return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
+        }
+
+        if (updateFields["email"] && !validateEmail(updateFields["email"])) {
+            return res.status(400).json({ success: false, message: "Invalid email" });
+        }
+
+        await User.update({ id: userId }, updateFields);
+
+        return res.status(200).json({ success: true, message: "User updated successfully" });
+
+    } catch (error) {
+
+        return res.status(500).json({ success: false, message: "Error updating user", error: error });
+
+    }
+};
+
 export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const targetUserId = parseInt(req.params.id);
@@ -98,7 +138,7 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
 
 
 //// REHACER
-export const updateUserPassword = async (req: Request, res: Response) => {
+export const updateProfilePassword = async (req: Request, res: Response) => {
     try {
         
         const targetUserId = parseInt(req.params.id);
