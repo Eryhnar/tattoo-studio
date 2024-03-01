@@ -74,12 +74,16 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
     try {
         const userId = req.tokenData.userId;
         let { name, email } = req.body;
+        interface updateFieldsI {
+            name?: string,
+            email?: string
+        }
 
         if (!await User.findOne({ where: {id: userId} })) { //redundant
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        let updateFields: { [key: string]: string } = {};
+        const updateFields: updateFieldsI = {};
 
         if (name) {
             name = name.trim();

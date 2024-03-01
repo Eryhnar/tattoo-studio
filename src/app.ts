@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
-import { createService, getServices } from "./controllers/service-controller";
+import { createService, getServices, updateService } from "./controllers/service-controller";
 import { get } from "http";
 
 export const app: Application = express();
@@ -33,7 +33,7 @@ app.post("/api/services", createService);
 //get all services
 app.get("/api/services", getServices);
 //update service
-
+app.put("/api/services/:id", updateService);
 //delete service
 
 

@@ -68,10 +68,72 @@ export const getServices = async (req: Request, res: Response) => {
             }
         );
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error fetching services",
-            error: error
-        });
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Error fetching services",
+                error: error
+            }
+        );
+    }
+}
+
+export const updateService = async (req: Request, res: Response) => {
+    try {
+        const serviceId = parseInt(req.params.id);
+        if (isNaN(serviceId)) {
+            return res.status(400).json(
+                { 
+                    success: false,
+                    message: "Invalid service id"
+                }
+            );
+        }
+        
+        const { name, description, price } = req.body;
+        interface updateFieldsI {
+            name?: string,
+            description?: string,
+            price?: number
+        }
+
+        const service = await Service.findOne({ where: {id: serviceId} });
+        if (!service) {
+            return res.status(404).json(
+                { 
+                    success: false,
+                    message: "Service not found"
+                }
+            );
+        }
+
+        const updateFields: updateFieldsI = {};
+        if (name) {
+            updateFields.name = name;
+        }
+        if (description) {
+            updateFields.description = description;
+        }
+        if (price) {
+            updateFields.price = parseFloat(price);
+        }
+
+        await Service.update({id: serviceId}, updateFields);
+        return res.status(200).json(
+            { 
+                success: true,
+                message: "Service updated successfully"
+            }
+        );
+
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: "Error updating service",
+                error: error
+            }
+        );
     }
 }
