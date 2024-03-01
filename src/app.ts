@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
+import { createService } from "./controllers/service-controller";
 
 export const app: Application = express();
 
@@ -20,13 +21,14 @@ app.post("/api/login", login);
 app.get("/api/users/profile", getProfile) //user
 app.put("/api/users/profile", updateProfile) //user
 app.put("/api/users/profile/password", updateProfilePassword); //user
-app.put("/api/users/profile", deactivateUser); //user
+app.put("/api/users/profile/delete", deactivateUser); //user
 app.get("/api/users", getUsers); //admin 
 app.put("/api/users/:id", updateUserById); //admin
 app.delete("/api/users/:id", deleteUserById); //admin
 
 //Service routes
 //create service
+app.post("/api/services", createService);
 //delete service
 //update service
 //get service by id
