@@ -24,8 +24,8 @@ export class Appointment extends BaseEntity{
     @Column({ name: "updated_at"})
     updatedAt!: Date;
 
-    @Column({ name: "duration"})
-    duration!: number; //in minutes
+    /*@Column({ name: "duration"})
+    duration!: number; //in minutes */
 
     @Column(
         {

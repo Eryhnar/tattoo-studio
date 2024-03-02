@@ -30,10 +30,10 @@ export class Appointments1708976549606 implements MigrationInterface {
                         name: "date",
                         type: "timestamp"
                     },
-                    {
-                        name: "duration",
-                        type: "int"
-                    },
+                    // {
+                    //     name: "duration",
+                    //     type: "int"
+                    // },
                     {
                         name: "status",
                         type: "enum",
