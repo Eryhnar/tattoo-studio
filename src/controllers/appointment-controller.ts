@@ -104,4 +104,4 @@ export const createAppointment = async (req: Request, res: Response) => {
             }
         );
     }
-} //createAppointment
+}
