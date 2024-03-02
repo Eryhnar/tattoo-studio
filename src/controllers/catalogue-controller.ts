@@ -134,3 +134,133 @@ export const createCatalogueEntry = async (req: Request, res: Response) => {
         );
     }
 }
+
+export const updateCatalogueEntry = async (req: Request, res: Response) => {
+    try {
+        const targetCatalogueEntryId = parseInt(req.params.id);
+        const { name, description, artistId, serviceId, price, beforeImage, afterImage  } = req.body;
+        interface CatalogueEntryI {
+            name?: string,
+            description?: string,
+            artistId?: number,
+            serviceId?: number,
+            price?: number,
+            beforeImage?: string,
+            afterImage?: string
+        }
+        const updateFields: CatalogueEntryI = {};
+
+        if (name) {
+            if (!validateCatalogueEntryName(name.trim())) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Invalid name"
+                    }
+                );
+            }
+            updateFields.name = name.trim();
+        }
+
+        if (description) {
+            if (!validateCatalogueEntryDescription(description.trim())) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Invalid description"
+                    }
+                );
+            }
+            updateFields.description = description.trim();
+        }
+
+        if (artistId) {
+            if (!validateId(artistId)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Artist ID must be a possitive number"
+                    }
+                );
+            }
+            updateFields.artistId = artistId;
+        }
+
+        if (serviceId) {
+            if (!validateId(serviceId)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Service ID must be a possitive number"
+                    }
+                );
+            }
+            updateFields.serviceId = serviceId;
+        }
+
+        if (price) {
+            if (!validatePrice(price)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Price must be a possitive number"
+                    }
+                );
+            }
+            updateFields.price = price;
+        }
+
+        if (beforeImage) {
+            if (!validateImageUrl(beforeImage.trim())) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Before image must be a valid URL"
+                    }
+                );
+            }
+            updateFields.beforeImage = beforeImage.trim();
+        }
+
+        if (afterImage) {
+            if (!validateImageUrl(afterImage.trim())) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "After image must be a valid URL"
+                    }
+                );
+            }
+            updateFields.afterImage = afterImage.trim();
+        }
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: "Please enter at least one field to update"
+                }
+            );
+        }
+
+        await Catalogue.update({ id: targetCatalogueEntryId }, updateFields);
+
+        return res.status(200).json(
+            {
+                success: true,
+                message: "Catalogue entry updated successfully"
+            }
+        );
+
+    } catch (error) {
+
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Error updating catalogue entry",
+                error: error
+            }
+        );
+
+    }
+};

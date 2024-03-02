@@ -44,8 +44,9 @@ app.delete("/api/services/:id", deleteService);
 //catalogue routes
 //create entry
 app.post("/api/catalogue", createCatalogueEntry);
-//delete entry
 //update entry
+app.put("/api/catalogue/:id", updateCatalogueEntry);
+//delete entry
 //get entry by id
 //get entry by name
 //get entry by service
