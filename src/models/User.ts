@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Role } from "./Role";
 import { Appointment } from "./Appointment";
+import { Catalogue } from "./Catalogue";
 
 @Entity("users")
 export class User extends BaseEntity{
@@ -40,4 +41,7 @@ export class User extends BaseEntity{
 
     @OneToMany(() => Appointment, appointment => appointment.artist)
     artistAppointments!: Appointment[];
+
+    @OneToMany(() => Catalogue, catalogue => catalogue.artist)
+    catalogues!: Catalogue[];
 }

@@ -28,11 +28,11 @@ export class Catalogue extends BaseEntity{
     @Column({ name: "updated_at"})
     updatedAt!: Date;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, user => user.catalogues)
     @JoinColumn({name: "artist_id"})
     artist!: User;
 
-    @ManyToOne(() => Service)
+    @ManyToOne(() => Service, service => service.catalogues)
     @JoinColumn({name: "service_id"})
     service!: Service;
 }

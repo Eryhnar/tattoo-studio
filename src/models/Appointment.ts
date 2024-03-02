@@ -18,15 +18,15 @@ export class Appointment extends BaseEntity{
     @Column({ name: "duration"})
     duration!: number; //in minutes
 
-    @ManyToOne(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.customerAppointments)
     @JoinColumn({ name: "customer_id" })
     customer!: User;
 
-    @ManyToOne(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.artistAppointments)
     @JoinColumn({ name: "artist_id" })
     artist!: User;
 
-    @ManyToOne(() => Service, service => service.id)
+    @ManyToOne(() => Service, service => service.appointments)
     @JoinColumn({ name: "service_id" })
     service!: Service;
 }
