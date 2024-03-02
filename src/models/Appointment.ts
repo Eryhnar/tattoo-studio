@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGen
 import { Service } from "./Service";
 import { User } from "./User";
 
-enum AppointmentStatus {
+export enum AppointmentStatus {
     pending = "pending",
     passed = "confirmed",
     cancelled = "cancelled"

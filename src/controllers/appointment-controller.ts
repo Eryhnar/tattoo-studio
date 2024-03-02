@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Appointment } from "../models/Appointment";
+import { Appointment, AppointmentStatus } from "../models/Appointment";
 import { User } from "../models/User";
 import { Service } from "../models/Service";
 import { app } from "../app";
@@ -206,7 +206,7 @@ export const updateAppointment = async (req: Request, res: Response) => {
 
         //TODO calculate duration
         // appointmentFilters.duration = newDuration;
-        
+
         //update the appointment
         await Appointment.update({ id: appointmentId }, appointmentFilters);
 
@@ -222,6 +222,50 @@ export const updateAppointment = async (req: Request, res: Response) => {
             { 
                 success: false, 
                 message: "Error updating appointment", 
+                error: error 
+            }
+        );
+    }
+}
+
+export const cancelAppointment = async (req: Request, res: Response) => {
+    try {
+        const appointmentId = parseInt(req.params.id);
+        const customerId = req.tokenData.userId;
+
+        const customer = await User.findOne({ where: { id: customerId, isActive: true } });
+        if (!customer) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+
+        const appointment = await Appointment.findOne({ where: { id: appointmentId, customer: customer } });
+        if (!appointment || appointment.status !== "pending") {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "Appointment not found" 
+                }
+            );
+        }
+
+        await Appointment.update({ id: appointmentId }, { status: AppointmentStatus.cancelled });
+
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointment cancelled successfully"
+            }
+        );
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error cancelling appointment", 
                 error: error 
             }
         );

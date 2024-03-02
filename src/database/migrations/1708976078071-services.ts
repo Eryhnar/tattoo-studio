@@ -26,7 +26,8 @@ export class Services1708976078071 implements MigrationInterface {
                     {
                         name: "photo",
                         type: "varchar",
-                        length: "250"
+                        length: "250",
+                        isNullable: true
                     },
                     {
                         name: "created_at",
