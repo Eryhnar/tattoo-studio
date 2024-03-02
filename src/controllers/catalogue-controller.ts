@@ -264,3 +264,47 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
 
     }
 };
+
+export const deleteCatalogueEntry = async (req: Request, res: Response) => {
+    try {
+        
+        const targetCatalogueEntryId = parseInt(req.params.id);
+
+        if (!validateId(targetCatalogueEntryId)) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: "Invalid ID"
+                }
+            );
+        }
+
+        const targetCatalogueEntry = await Catalogue.findOne({ where: {id: targetCatalogueEntryId} });
+
+        if (!targetCatalogueEntry) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "Catalogue entry not found"
+                }
+            );
+        }
+
+        const deletedEntry = await Catalogue.delete({ id: targetCatalogueEntryId }); 
+        return res.status(200).json(
+            {
+                success: true,
+                message: "Catalogue entry deleted successfully",
+                data: deletedEntry
+            }
+        );
+    } catch (error) {
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Error deleting catalogue entry",
+                error: error
+            }
+        );
+    }
+}
