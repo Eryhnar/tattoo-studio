@@ -3,7 +3,7 @@ import { getRoles, updateRole, createRole } from "./controllers/role-controller"
 import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
-import { createCatalogueEntry, deleteCatalogueEntry, updateCatalogueEntry } from "./controllers/catalogue-controller";
+import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 
 export const app: Application = express();
 
@@ -48,11 +48,12 @@ app.post("/api/catalogue", createCatalogueEntry);
 app.put("/api/catalogue/:id", updateCatalogueEntry);
 //delete entry
 app.delete("/api/catalogue/:id", deleteCatalogueEntry);
+//get all entries
+app.get("/api/catalogue", getCatalogueEntries);
 //get entry by id
 //get entry by name
 //get entry by service
 //get entry by artist
-//get all entries
 
 //appointment routes
 //create appointment

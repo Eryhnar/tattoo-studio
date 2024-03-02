@@ -308,3 +308,72 @@ export const deleteCatalogueEntry = async (req: Request, res: Response) => {
         );
     }
 }
+
+export const getCatalogueEntries = async (req: Request, res: Response) => {
+    try {
+        const { name, artistId, serviceId } = req.query;
+        interface catalogueEntriesFiltersI {
+            name?: string,
+            artistId?: number,
+            serviceId?: number
+        }
+        const catalogueEntriesFilters: catalogueEntriesFiltersI = {};
+
+        if (name) {
+            if (!validateCatalogueEntryName(name)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Invalid name"
+                    }
+                );
+            }
+            catalogueEntriesFilters.name = name as string;
+        }
+        
+        if (artistId) {
+            const artistIdInt = parseInt(artistId as string);
+            if (!validateId(artistIdInt)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Invalid artist ID"
+                    }
+                );
+            }
+            catalogueEntriesFilters.artistId = artistIdInt;
+        }
+        
+        if (serviceId) {
+            const serviceIdInt = parseInt(serviceId as string);
+            if (!validateId(serviceIdInt)) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "Invalid service ID"
+                    }
+                );
+            }
+            catalogueEntriesFilters.serviceId = serviceIdInt;
+        }
+
+        const catalogueEntries = await Catalogue.find({ where: catalogueEntriesFilters });
+
+        //const catalogueEntries = await Catalogue.find();
+        return res.status(200).json(
+            {
+                success: true,
+                message: "Catalogue entries retrieved successfully",
+                data: catalogueEntries
+            }
+        );
+    } catch (error) {
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Error retrieving catalogue entries",
+                error: error
+            }
+        );
+    }
+}
