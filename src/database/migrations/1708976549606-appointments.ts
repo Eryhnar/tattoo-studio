@@ -31,6 +31,16 @@ export class Appointments1708976549606 implements MigrationInterface {
                         type: "timestamp"
                     },
                     {
+                        name: "duration",
+                        type: "int"
+                    },
+                    {
+                        name: "status",
+                        type: "enum",
+                        enum: ["pending", "confirmed", "cancelled"],
+                        default: "'pending'"
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()"
