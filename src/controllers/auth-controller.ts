@@ -121,6 +121,15 @@ export const login = async (req: Request, res: Response) => {
             );
         }
 
+        if (!user.isActive) {
+            return res.status(400).json(
+                { 
+                    success: false,
+                    message: "User is inactive" //should I be less specific?
+                }
+            );
+        }
+
         if (await comparePassword(password, user.password)) {
             //generate token
             const token = jwt.sign(

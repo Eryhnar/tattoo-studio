@@ -3,29 +3,18 @@ import { Service } from "../models/Service";
 
 export const createService = async (req: Request, res: Response) => {
     try {
-        const { name, description, price, photo } = req.body;
+        const { name, description, photo } = req.body;
         interface ServiceFieldsI {
             name: string,
             description: string,
-            price: number
             photo?: string
         }
 
-        if (!name || !description || !price ) {
+        if ( !name || !description ) {
             return res.status(400).json(
                 { 
                     success: false,
-                    message: "Name, description and price are required"
-                }
-            );
-        }
-
-        const parsedPrice = parseFloat(price);
-        if (isNaN(parsedPrice)) {
-            return res.status(400).json(
-                { 
-                    success: false,
-                    message: "Price must be a valid number"
+                    message: "Name and description are required"
                 }
             );
         }
@@ -33,7 +22,6 @@ export const createService = async (req: Request, res: Response) => {
         const serviceFields: ServiceFieldsI = {
             name: name,
             description: description,
-            price: parseFloat(price)
         }
 
         if (photo) {
@@ -103,11 +91,10 @@ export const updateService = async (req: Request, res: Response) => {
             );
         }
         
-        const { name, description, price, photo } = req.body;
+        const { name, description, photo } = req.body;
         interface updateFieldsI {
             name?: string,
             description?: string,
-            price?: number,
             photo?: string
         }
 
@@ -127,9 +114,6 @@ export const updateService = async (req: Request, res: Response) => {
         }
         if (description) {
             updateFields.description = description;
-        }
-        if (price) {
-            updateFields.price = parseFloat(price);
         }
         if (photo) {
             updateFields.photo = photo;
