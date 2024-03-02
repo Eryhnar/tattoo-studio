@@ -21,7 +21,8 @@ export class Catalogue1708977049545 implements MigrationInterface {
                     },
                     {
                         name: "description",
-                        type: "text"
+                        type: "text",
+                        isNullable: true
                     },
                     {
                         name: "artist_id",

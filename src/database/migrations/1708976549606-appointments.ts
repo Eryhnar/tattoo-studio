@@ -35,6 +35,12 @@ export class Appointments1708976549606 implements MigrationInterface {
                         type: "timestamp",
                         default: "now()"
                     },
+                    {
+                        name: "updated_at",
+                        type: "timestamp",
+                        default: "now()",
+                        onUpdate: "now()"
+                    }
                 ],
                 foreignKeys: [
                     {

@@ -1,7 +1,15 @@
 
-const nameMaxLength = 50; // adjust this value to the maximum length of the name
+const nameMaxLength = 25; // adjust this value to the maximum length of the name
 export const validateUserName = (name: string) => {
     if(name == null || name.length > nameMaxLength || /[^ \p{L}]/gu.test(name)){ // consider spaces validation if surname is added
+        return false;
+    }
+    return true;
+};
+
+const surnameMaxLength = 50; // adjust this value to the maximum length of the surname
+export const validateUserSurname = (surname: string) => {
+    if(surname == null || surname.length > surnameMaxLength || /[^ \p{L}]/gu.test(surname)){ // consider spaces validation if surname is added
         return false;
     }
     return true;

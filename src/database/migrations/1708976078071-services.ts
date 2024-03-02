@@ -24,10 +24,9 @@ export class Services1708976078071 implements MigrationInterface {
                         type: "text"
                     },
                     {
-                        name: "price",
-                        type: "decimal",
-                        precision: 10,
-                        scale: 2
+                        name: "photo",
+                        type: "varchar",
+                        length: "250"
                     },
                     {
                         name: "created_at",

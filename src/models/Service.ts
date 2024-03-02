@@ -12,9 +12,9 @@ export class Service extends BaseEntity{
     
     @Column({ name: "description"})
     description!: string;
-    
-    @Column({ name: "price"})
-    price!: number;
+
+    @Column({ name: "photo"})
+    photo!: string;
 
     @OneToMany(() => Catalogue, catalogue => catalogue.id)
     catalogues!: Catalogue[];
