@@ -5,6 +5,7 @@ import { User } from "./User";
 export class Role extends BaseEntity{
     @PrimaryGeneratedColumn()
     id!: number;
+    
     @Column({ name: "name", unique: true})
     name!: string;
 

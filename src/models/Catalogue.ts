@@ -16,7 +16,7 @@ export class Catalogue extends BaseEntity{
     @Column({ name: "price"})
     price!: number;
 
-    @Column({ name: "before_image", unique: true})
+    @Column({ name: "before_image", unique: true, nullable: true})
     beforeImage!: string;
 
     @Column({ name: "after_image", unique: true})

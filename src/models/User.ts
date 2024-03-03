@@ -20,7 +20,7 @@ export class User extends BaseEntity{
     @Column( { name: "password" } )
     password!: string;
     
-    @Column( { name: "is_active" })
+    @Column( { name: "is_active" } )//TODO default?
     isActive!: boolean;
 
     //created_at

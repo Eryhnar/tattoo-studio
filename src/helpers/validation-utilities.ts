@@ -1,5 +1,20 @@
 
 const nameMaxLength = 25; // adjust this value to the maximum length of the name
+
+export const userExists = (id: any): void => {
+    const user = User.findOne({ where: { id: id } });
+    if (!user) {
+        return res.status(404).json(
+            { 
+                success: false,
+                message: "No user exists with that id"
+            }
+        );
+    }
+    req.user = user;
+    next();
+};
+
 export const validateUserName = (name: any): boolean => {
     if(typeof name !== "string"){
         return false;

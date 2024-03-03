@@ -17,11 +17,13 @@ export class Services1708976078071 implements MigrationInterface {
                     {
                         name: "name",
                         type: "varchar",
-                        length: "250"
+                        length: "250",
+                        isUnique: true
                     },
                     {
                         name: "description",
-                        type: "text"
+                        type: "text",
+                        isNullable: true
                     },
                     {
                         name: "photo",

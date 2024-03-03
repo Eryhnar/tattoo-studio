@@ -5,6 +5,7 @@ import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, up
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 import { cancelAppointment, createAppointment, deleteAppointment, getAllAppointments, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
+import { validateEmail, validatePassword, validateUserName } from "./helpers/validation-utilities";
 
 export const app: Application = express();
 
@@ -16,8 +17,8 @@ app.get("/roles", getRoles);
 //app.put("/roles", updateRole);
 
 //auth routes
-app.post("/api/register", register);
-app.post("/api/login", login);
+app.post("/api/register", validateUserName, validateEmail, validatePassword, register);
+app.post("/api/login", validateUserName, validateEmail, validatePassword, login);
 
 //user routes
 app.get("/api/users/profile", getProfile) //user

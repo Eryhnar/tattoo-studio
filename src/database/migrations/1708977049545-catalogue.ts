@@ -42,12 +42,14 @@ export class Catalogue1708977049545 implements MigrationInterface {
                         name: "before_image",
                         type: "varchar",
                         length: "250",
-                        isNullable: true
+                        isNullable: true,
+                        isUnique: true
                     },
                     {
                         name: "after_image",
                         type: "varchar",
-                        length: "250"
+                        length: "250",
+                        isUnique: true,
                     },
                     {
                         name: "created_at",
