@@ -4,7 +4,7 @@ import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
-import { cancelAppointment, createAppointment, updateAppointment } from "./controllers/appointment-controller";
+import { cancelAppointment, createAppointment, getAppointments, updateAppointment } from "./controllers/appointment-controller";
 
 export const app: Application = express();
 
@@ -62,6 +62,9 @@ app.put("/api/appointments/:id/cancel", cancelAppointment);
 //delete appointment by id
 app.delete("/api/appointments/:id", cancelAppointment); //admin
 //get appointments
+app.get("/api/appointments", getAppointments); 
 //get appointment by id
+app.get("/api/appointments/:id", getAppointmentById);
 //get appointment by service
 //get all appointments (admin)
+app.get("/api/appointments", getAllAppointments); //admin

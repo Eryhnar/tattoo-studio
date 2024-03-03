@@ -89,3 +89,8 @@ export const validateImageUrl = (url: any): boolean => {
     }
     return true;
 }
+
+export function isValidDate(date: any): boolean {
+    const parsedDate = new Date(date.toString());
+    return !isNaN(parsedDate.getTime());
+}

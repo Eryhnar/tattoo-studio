@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { Appointment, AppointmentStatus } from "../models/Appointment";
 import { User } from "../models/User";
 import { Service } from "../models/Service";
-import { app } from "../app";
+import { FindOperator, Like } from "typeorm";
+import { isValidDate, validateId } from "../helpers/validation-utilities";
 //import Reference from 'typeorm';
 
 export const createAppointment = async (req: Request, res: Response) => {
@@ -315,3 +316,124 @@ export const deleteAppointment = async (req: Request, res: Response) => {
         );
     }
 }
+
+export const getAppointments = async (req: Request, res: Response) => {
+    try {
+        const { userId, roleName } = req.tokenData;
+        const { date, serviceName, artistName, customerName } = req.query;
+        interface queryFiltersI {
+            date?: Date;
+            serviceName?: FindOperator<string>;
+            artistName?: FindOperator<string>;
+            customerName?: FindOperator<string>;
+        }
+        
+        const user = await User.findOne({ where: { id: userId, isActive: true } });
+        if (!user) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+
+        //validate if user.role.name = TokenData.roleName
+        if (user.role.name !== roleName) {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Unauthorized" 
+                }
+            );
+        }
+        const appointmentFilters: queryFiltersI = {};
+
+        //validate if user is artist or customer
+        if (roleName === 'artist') {
+            appointmentFilters.artistName = Like("%"+userId.toString()+"%");
+            if (customerName) {
+                appointmentFilters.customerName = Like("%"+customerName.toString()+"%");
+            }
+        } else if (roleName === 'customer') {
+            appointmentFilters.customerName = Like("%"+userId.toString()+"%");
+            if (artistName) {
+                appointmentFilters.artistName = Like("%"+artistName.toString()+"%");
+            }
+        }
+
+        if (date) {
+            if (!isValidDate(date)) {
+                return res.status(400).json(
+                    { 
+                        success: false, 
+                        message: "Invalid date" 
+                    }
+                );
+            }
+            appointmentFilters.date = new Date(date.toString());
+        }
+
+        if (serviceName) {
+            const service = await Service.findOne({ where: { name: serviceName as string} });
+            if (!service) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Service not found" 
+                    }
+                );
+            }
+            appointmentFilters.serviceName = Like("%"+serviceName.toString()+"%");
+        }
+
+        if (artistName) {
+            const artist = await User.findOne({ where: { name: artistName as string } });
+            if (!artist) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Artist not found" 
+                    }
+                );
+            }
+            appointmentFilters.artistName = Like("%"+artistName.toString()+"%");
+        }
+
+        if (customerName) {
+            const customer = await User.findOne({ where: { name: customerName as string} });
+            if (!customer) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Customer not found" 
+                    }
+                );
+            }
+            appointmentFilters.customerName = Like("%"+customerName.toString()+"%");
+        }
+
+        const appointments = await Appointment.find(
+            {
+                where: appointmentFilters,
+            }
+        );
+        
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointments retrieved successfully",
+                data: appointments
+            }
+        );
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching appointments", 
+                error: error 
+            }
+        );
+    }
+}
+

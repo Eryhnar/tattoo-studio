@@ -38,9 +38,9 @@ export const createService = async (req: Request, res: Response) => {
         }
 
 
-        const service = await Service.create(
-            serviceFields
-        ).save();
+        const service = await Service.create({
+            ...serviceFields
+        }).save();
         return res.status(201).json(
             { 
                 success: true,

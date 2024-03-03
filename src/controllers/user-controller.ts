@@ -229,15 +229,17 @@ export const deactivateUser = async (req: Request, res: Response) => {
 export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const targetUserId = parseInt(req.params.id);
-        let { name, email } = req.body;
+        let { name, email } = req.body; // change to const
 
         const targetUser = await User.findOneBy({ id: targetUserId });
         if (!targetUser) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        let updateFields: { [key: string]: string } = {};
+        // TODO implement interface for updateFields
+        let updateFields: { [key: string]: string } = {}; 
 
+        //TODO redo this whole section
         if (name) {
             name = name.trim();
             updateFields["name"] = name;
@@ -255,7 +257,7 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
         if (updateFields["email"] && !validateEmail(updateFields["email"])) {
             return res.status(400).json({ success: false, message: "Invalid email" });
         }
-
+        // -----------------------------------------
         await User.update({ id: targetUserId }, updateFields);
 
         return res.status(200).json({ success: true, message: "User updated successfully" });
