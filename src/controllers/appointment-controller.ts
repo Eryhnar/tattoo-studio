@@ -9,7 +9,7 @@ import { isValidDate, validateId } from "../helpers/validation-utilities";
 export const createAppointment = async (req: Request, res: Response) => {
     try {
         const { serviceId, artistId, date, time } = req.body;
-        const customerId = req.tokenData.userId;
+        const customerId = req.tokenData.userId; //not true
 
         if (!serviceId || !date || !time) {
             return res.status(400).json(
@@ -19,7 +19,7 @@ export const createAppointment = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        //no
         const customer = await User.findOne({ where: { id: customerId } });
         if (!customer) {
             return res.status(404).json(
@@ -29,7 +29,7 @@ export const createAppointment = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        //no
         const artist = await User.findOne({ where: { id: artistId } });
         if (!artist) {
             return res.status(404).json(
