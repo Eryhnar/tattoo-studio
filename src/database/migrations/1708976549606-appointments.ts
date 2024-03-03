@@ -41,6 +41,11 @@ export class Appointments1708976549606 implements MigrationInterface {
                         default: "'pending'"
                     },
                     {
+                        name: "catalogue_id",
+                        type: "int",
+                        isNullable: true
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()"

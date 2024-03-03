@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { User } from "./User";
 import { Service } from "./Service";
+import { Appointment } from "./Appointment";
 
 @Entity("catalogue")
 export class Catalogue extends BaseEntity{
@@ -35,4 +36,7 @@ export class Catalogue extends BaseEntity{
     @ManyToOne(() => Service, service => service.catalogues)
     @JoinColumn({name: "service_id"})
     service!: Service;
+
+    @OneToMany(() => Appointment, appointment => appointment.catalogue)
+    appointments!: Appointment[];
 }

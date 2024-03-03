@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models/User";
 import { Appointment } from "../models/Appointment";
+import { Service } from "../models/Service";
 
 export const validateId = (req: Request, res: Response, next: NextFunction) => {
     const id = req.tokenData.userId;
@@ -54,7 +55,7 @@ export const validateDate = (req: Request, res: Response, next: NextFunction) =>
 
 export const appointmentExists = async (req: Request, res: Response, next: NextFunction) => {
     const appointmentId = parseInt(req.params.id);
-    if (typeof appointmentId !== "number") {
+    if (isNaN(appointmentId)) {
         return res.status(400).json(
             { 
                 success: false,
@@ -76,7 +77,7 @@ export const appointmentExists = async (req: Request, res: Response, next: NextF
 
 export const serviceExists = async (req: Request, res: Response, next: NextFunction) => {
     const serviceId = parseInt(req.body.serviceId);
-    if (typeof serviceId !== "number") {
+    if (isNaN(serviceId)) {
         return res.status(400).json(
             { 
                 success: false,
@@ -95,4 +96,5 @@ export const serviceExists = async (req: Request, res: Response, next: NextFunct
     }
     next();
 }
+
     
