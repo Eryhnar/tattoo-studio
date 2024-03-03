@@ -28,3 +28,28 @@ export const userExists = async (req: Request, res: Response, next: NextFunction
     req.user = user;
     next();
 };
+
+export const validateDate = (req: Request, res: Response, next: NextFunction) => {
+    const date = new Date(req.body.date);
+
+    if (isNaN(date.getTime())) {
+        return res.status(400).json(
+            { 
+                success: false,
+                message: "Invalid date"
+            }
+        );
+    }
+    if (date < new Date()) {
+        return res.status(400).json(
+            { 
+                success: false,
+                message: "Date is in the past"
+            }
+        );
+    }
+    next();
+}
+
+
+    
