@@ -4,7 +4,7 @@ import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
-import { cancelAppointment, createAppointment, getAppointments, updateAppointment } from "./controllers/appointment-controller";
+import { cancelAppointment, createAppointment, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
 
 export const app: Application = express();
 

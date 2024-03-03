@@ -351,12 +351,12 @@ export const getAppointments = async (req: Request, res: Response) => {
 
         //validate if user is artist or customer
         if (roleName === 'artist') {
-            appointmentFilters.artistName = Like("%"+userId.toString()+"%");
+            appointmentFilters.artistName = Like("%"+user.name.toString()+"%");
             if (customerName) {
                 appointmentFilters.customerName = Like("%"+customerName.toString()+"%");
             }
         } else if (roleName === 'customer') {
-            appointmentFilters.customerName = Like("%"+userId.toString()+"%");
+            appointmentFilters.customerName = Like("%"+user.name.toString()+"%");
             if (artistName) {
                 appointmentFilters.artistName = Like("%"+artistName.toString()+"%");
             }
@@ -386,8 +386,8 @@ export const getAppointments = async (req: Request, res: Response) => {
             }
             appointmentFilters.serviceName = Like("%"+serviceName.toString()+"%");
         }
-
-        if (artistName) {
+        /*
+        if (artistName) { 
             const artist = await User.findOne({ where: { name: artistName as string } });
             if (!artist) {
                 return res.status(404).json(
@@ -400,7 +400,7 @@ export const getAppointments = async (req: Request, res: Response) => {
             appointmentFilters.artistName = Like("%"+artistName.toString()+"%");
         }
 
-        if (customerName) {
+        if (customerName) { 
             const customer = await User.findOne({ where: { name: customerName as string} });
             if (!customer) {
                 return res.status(404).json(
@@ -411,7 +411,7 @@ export const getAppointments = async (req: Request, res: Response) => {
                 );
             }
             appointmentFilters.customerName = Like("%"+customerName.toString()+"%");
-        }
+        }*/
 
         const appointments = await Appointment.find(
             {
@@ -436,4 +436,62 @@ export const getAppointments = async (req: Request, res: Response) => {
         );
     }
 }
+
+export const getAppointmentById = async (req: Request, res: Response) => {
+    try {
+        const { userId, roleName } = req.tokenData;
+        const appointmentId = parseInt(req.params.id);
+
+
+        //TODO validate user id
+        const user = await User.findOne({ where: { id: userId, isActive: true } });
+        if (!user) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+        
+        if (user.role.name !== roleName) {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Unauthorized" 
+                }
+            );
+        }
+        const target = (roleName === 'artist') ? 'artist' : 'customer';
+        
+        //TODO validate appointment id
+        const appointment = await Appointment.findOne({ where: { id: appointmentId, [target]: user } });
+        if (!appointment) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "Appointment not found" 
+                }
+            );
+        }
+
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointment retrieved successfully",
+                data: appointment
+            }
+        );
+
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching appointment", 
+                error: error 
+            }
+        );
+    }
+}
+
 
