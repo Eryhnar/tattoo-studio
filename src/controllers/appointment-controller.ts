@@ -494,4 +494,25 @@ export const getAppointmentById = async (req: Request, res: Response) => {
     }
 }
 
+export const getAllAppointments = async (req: Request, res: Response) => {
+    try {
 
+        const appointments = await Appointment.find();
+
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointments retrieved successfully",
+                data: appointments
+            }
+        );
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching appointments", 
+                error: error 
+            }
+        );
+    }
+}
