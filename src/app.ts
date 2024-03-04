@@ -21,8 +21,8 @@ app.post("/api/register", validateUserName, validateUserSurname, validateEmail, 
 app.post("/api/login", validateEmail, validatePassword, login);
 
 //user routes
-app.get("/api/users/profile", getProfile) //user
-app.put("/api/users/profile", updateProfile) //user
+app.get("/api/users/profile", auth, getProfile) //user
+app.put("/api/users/profile", auth, validateUserName, validateUserSurname, validateEmail, updateProfile) //user
 app.put("/api/users/profile/password", updateProfilePassword); //user
 app.put("/api/users/profile/delete", deactivateUser); //user
 app.get("/api/users", getUsers); //admin 

@@ -56,7 +56,8 @@ export const getUsers = async (req: Request, res: Response) => {
 export const getProfile = async (req: Request, res: Response) => {
     try {
         const userId = req.tokenData.userId;
-        const user = await User.findOne({ where:{id: userId} });
+        //const user = await User.findOne({ where:{id: userId} });
+        const user = req.body.tokenUser;
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -72,21 +73,28 @@ export const getProfile = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const userId = req.tokenData.userId;
-        let { name, email } = req.body;
+        let { name, surname, email } = req.body;
         interface updateFieldsI {
             name?: string,
+            surname?: string,
             email?: string
         }
 
-        if (!await User.findOne({ where: {id: userId} })) { //redundant
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
+        
+        // if (!await User.findOne({ where: {id: userId} })) { //redundant
+        //     return res.status(404).json({ success: false, message: "User not found" });
+        // }
 
         const updateFields: updateFieldsI = {};
 
         if (name) {
             name = name.trim();
             updateFields["name"] = name;
+        }
+        
+        if (surname) {
+            surname = surname.trim();
+            updateFields["surname"] = surname;
         }
 
         if (email) {
