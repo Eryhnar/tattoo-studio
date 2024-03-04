@@ -1,5 +1,5 @@
 
-const nameMaxLength = 25; // adjust this value to the maximum length of the name
+//const nameMaxLength = 25; // adjust this value to the maximum length of the name
 
 // export const userExists = (id: any): void => {
 //     const user = User.findOne({ where: { id: id } });
@@ -15,7 +15,8 @@ const nameMaxLength = 25; // adjust this value to the maximum length of the name
 //     next();
 // };
 
-export const validateUserName = (name: any): boolean => {
+const nameMaxLength = process.env.NAME_MAX_LENGTH ? parseInt(process.env.NAME_MAX_LENGTH) : 25; // convert to number and provide default value
+export const isValidUserName = (name: any): boolean => {
     if(typeof name !== "string"){
         return false;
     }
@@ -25,8 +26,9 @@ export const validateUserName = (name: any): boolean => {
     return true;
 };
 
-const surnameMaxLength = 50; // adjust this value to the maximum length of the surname
-export const validateUserSurname = (surname: any): boolean => {
+//const surnameMaxLength = 50; // adjust this value to the maximum length of the surname
+const surnameMaxLength = process.env.SURNAME_MAX_LENGTH ? parseInt(process.env.SURNAME_MAX_LENGTH) : 50; // convert to number and provide default value
+export const isValidUserSurname = (surname: any): boolean => {
     if(typeof surname !== "string"){
         return false;
     }
@@ -36,11 +38,12 @@ export const validateUserSurname = (surname: any): boolean => {
     return true;
 };
 
-export const validateEmail = (email: any): boolean => {
+//const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // considering adding a domain validation
+const emailRegex = process.env.EMAIL_REGEX ? new RegExp(process.env.EMAIL_REGEX) : /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // convert to regex and provide default value
+export const isValidEmail = (email: any): boolean => {
     if(typeof email !== "string"){
         return false;
     }
-    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // considering adding a domain validation
     if(email == null || email.length > 100 || !emailRegex.test(email)){
         return false;
     }
@@ -48,7 +51,7 @@ export const validateEmail = (email: any): boolean => {
 };
 
 // Password must contain at least one lowercase letter, one uppercase letter, one digit, and be 8-14 characters long inclusive
-export const validatePassword = (password: any): boolean => {
+export const isValidPasswordFormat = (password: any): boolean => {
     if(typeof password !== "string"){
         return false;
     }
@@ -105,7 +108,11 @@ export const validateImageUrl = (url: any): boolean => {
     return true;
 }
 
-export function isValidDate(date: any): boolean {
+export const isValidDate = (date: any): boolean => {
     const parsedDate = new Date(date.toString());
     return !isNaN(parsedDate.getTime());
+}
+
+export const capitalizeFirstLetter = (string: string): string => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

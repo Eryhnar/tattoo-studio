@@ -5,20 +5,20 @@ import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, up
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 import { cancelAppointment, createAppointment, deleteAppointment, getAllAppointments, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
-import { validateEmail, validatePassword, validateUserName } from "./helpers/validation-utilities";
+import { auth, isSuperAdmin, validateEmail, validatePassword, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
 
 export const app: Application = express();
 
 app.use(express.json());
 
 //roles routes
-app.get("/roles", getRoles);
+app.get("/roles", auth, isSuperAdmin, getRoles);
 //app.post("/roles", createRole);
 //app.put("/roles", updateRole);
 
 //auth routes
-app.post("/api/register", validateUserName, validateEmail, validatePassword, register);
-app.post("/api/login", validateUserName, validateEmail, validatePassword, login);
+app.post("/api/register", validateUserName, validateUserSurname, validateEmail, validatePassword, register);
+app.post("/api/login", validateEmail, validatePassword, login);
 
 //user routes
 app.get("/api/users/profile", getProfile) //user

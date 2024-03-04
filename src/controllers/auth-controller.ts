@@ -1,67 +1,65 @@
 import { Request, Response } from "express";
 import { comparePassword, hashPassword } from "../helpers/password-utilities";
 import { User } from "../models/User";
-import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
+import { capitalizeFirstLetter } from "../helpers/validation-utilities";
 import jwt from "jsonwebtoken";
+import { Role } from "../models/Role";
 
 //register
 export const register = async (req: Request, res: Response) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, surname, email, password } = req.body;
+        //let roleName = req.body.role;
+        let roleName // maybe take it from body if there is a super admin token
+        console.log(name, surname, email, password)
         
-        const treatedName = name?.trim(); //should it capitalize the first letter of the name?
-        if (treatedName) { //can be avoided if I force the user to not enter a name during registration OR force them to enter a name in the db and model
-
-
-            if (!validateUserName(treatedName)) {
-                return res.status(400).json(
-                    { 
-                        success: false,
-                        message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters"
-                    }
-                );
-            };
+        const treatedName = capitalizeFirstLetter(name?.trim()); //should it capitalize the first letter of the name?
+        console.log(treatedName)
+        let treatedSurname: string | null = null;
+        if (surname) {
+            treatedSurname = capitalizeFirstLetter(surname?.trim()); //should it capitalize the first letter of the surname?
         }
-
-        // validate email    JOIN email and password validation
-        if (!validateEmail(email)) {
+        console.log(treatedSurname)
+        if (!treatedName || !email || !password) {
             return res.status(400).json(
                 { 
                     success: false,
-                    message: "Invalid email"
+                    message: "Please enter name, surname, email and password"
                 }
             );
         }
-
-        // validate password
-        if (!validatePassword(password)) {
-            return res.status(400).json(
-                { 
-                    success: false,
-                    message: "The password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long"
-                }
-            );
-        }
-
-        const hashedPassword = await hashPassword(password);
-
-        const user = await User.findOneBy({  email: email }); 
+        console.log("hi");
+        const user = await User.findOneBy({ email: email });
         if (user) {
+            return res.status(400).json({
+                success: false,
+                message: "User already exists",
+            });
+        }
+
+        if(!roleName){ //remove this if statement if there is a super admin token
+            roleName = "user";
+        }
+        const role = await Role.findOne({ where: { name: roleName } });
+
+        if (!role) {
             return res.status(400).json(
                 { 
                     success: false,
-                    message: "User already exists"
+                    message: "Role does not exist"
                 }
             );
         }
-
-        const newUser = await User.create(
-            {
-                name: treatedName,  
-                email: email,
-                password: hashedPassword
-            }
-        ).save();
+        console.log("hi2");
+        const hashedPassword = await hashPassword(password);
+        console.log(hashedPassword);
+        const newUser = await User.create({
+            name: treatedName,
+            surname: treatedSurname || undefined,
+            email: email,
+            password: hashedPassword,
+            role: role
+        }).save();
 
         return res.status(201).json(
             { 
@@ -69,8 +67,6 @@ export const register = async (req: Request, res: Response) => {
                 message: `User ${newUser.name} created successfully`,
             }
         );
-
-
 
     } catch (error) {
         return res.status(500).json(
@@ -88,6 +84,7 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
+        console.log("1")
         if (!email || !password) {
             return res.status(400).json(
                 { 
@@ -96,22 +93,28 @@ export const login = async (req: Request, res: Response) => {
                 }
             );
         }
-
-        if (!validateEmail(email) || !validatePassword(password)) {
-            return res.status(400).json(
-                { 
-                    success: false,
-                    message: "Invalid email or password" //message might not be accurate since it checks format and not values
-                }
-            );
-        }
-
+        console.log("2")
         const user = await User.findOne(
             {
-                where: { email: email }
+                where: { email: email },
+                relations: {
+                    role: true
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    password: true,
+                    isActive: true,
+                    role: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         );
-
+        console.log("3")
         if (!user) {
             return res.status(404).json(
                 { 
@@ -120,7 +123,7 @@ export const login = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        console.log("4")
         if (!user.isActive) {
             return res.status(400).json(
                 { 
@@ -129,9 +132,14 @@ export const login = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        console.log("5")
         if (await comparePassword(password, user.password)) {
             //generate token
+            console.log("5.5")
+            console.log('JWT Secret:', process.env.JWT_SECRET);
+            console.log('User ID:', user.id);
+            console.log('User:', user.role);
+            console.log('Role Name:', user.role.name);
             const token = jwt.sign(
                 { userId: user.id,
                   roleName: user.role.name
@@ -141,12 +149,12 @@ export const login = async (req: Request, res: Response) => {
                     expiresIn: "2h" 
                 }
             );
-
+            console.log("6")
             return res.status(200).json(
                 { 
                     success: true,
                     message: "Login successful",
-                    token: token  //CAREFUL WITH SENDING IT LIKE THIS
+                    token: token
                 }
             );
         }

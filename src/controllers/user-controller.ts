@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { User } from "../models/User";
-import { validateEmail, validatePassword, validateUserName } from "../helpers/validation-utilities";
 import { comparePassword } from "../helpers/password-utilities";
 import { FindOperator } from "typeorm/find-options/FindOperator";
 import { Like } from "typeorm";
@@ -95,13 +94,13 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
             updateFields["email"] = email;
         }
 
-        if (updateFields["name"] && !validateUserName(updateFields["name"])) {
-            return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
-        }
+        // if (updateFields["name"] && !validateUserName(updateFields["name"])) {
+        //     return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
+        // }
 
-        if (updateFields["email"] && !validateEmail(updateFields["email"])) {
-            return res.status(400).json({ success: false, message: "Invalid email" });
-        }
+        // if (updateFields["email"] && !validateEmail(updateFields["email"])) {
+        //     return res.status(400).json({ success: false, message: "Invalid email" });
+        // }
 
         await User.update({ id: userId }, updateFields);
 
@@ -138,14 +137,14 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
                 }
             );
         }
-        if (!validatePassword(newPassword)) {
-            return res.status(400).json(
-                { 
-                    success: false, 
-                    message: "Invalid password" 
-                }
-            );
-        };
+        // if (!validatePassword(newPassword)) {
+        //     return res.status(400).json(
+        //         { 
+        //             success: false, 
+        //             message: "Invalid password" 
+        //         }
+        //     );
+        // };
         if (!await comparePassword(oldPassword, targetUser.password)) {
             return res.status(400).json(
                 { 
@@ -188,14 +187,14 @@ export const deactivateUser = async (req: Request, res: Response) => {
             );
         }
 
-        if (!validatePassword(password)) { //join with next if?
-            return res.status(400).json(
-                { 
-                    success: false, 
-                    message: "Invalid credentials" 
-                }
-            );
-        }
+        // if (!validatePassword(password)) { //join with next if?
+        //     return res.status(400).json(
+        //         { 
+        //             success: false, 
+        //             message: "Invalid credentials" 
+        //         }
+        //     );
+        // }
 
         if (!await comparePassword(password, targetUser.password)) {
             return res.status(400).json(
@@ -250,13 +249,13 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
             updateFields["email"] = email;
         }
 
-        if (updateFields["name"] && !validateUserName(updateFields["name"])) {
-            return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
-        }
+        // if (updateFields["name"] && !validateUserName(updateFields["name"])) {
+        //     return res.status(400).json({ success: false, message: "Invalid user name. Only unicode characters are allowed and it must not exceed 50 characters" });
+        // }
 
-        if (updateFields["email"] && !validateEmail(updateFields["email"])) {
-            return res.status(400).json({ success: false, message: "Invalid email" });
-        }
+        // if (updateFields["email"] && !validateEmail(updateFields["email"])) {
+        //     return res.status(400).json({ success: false, message: "Invalid email" });
+        // }
         // -----------------------------------------
         await User.update({ id: targetUserId }, updateFields);
 
