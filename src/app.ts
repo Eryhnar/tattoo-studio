@@ -26,8 +26,8 @@ app.put("/api/users/profile", auth, validateUserName, validateUserSurname, valid
 app.put("/api/users/profile/password", auth, updateProfilePassword); //user
 app.put("/api/users/profile/delete", auth, deactivateUser); //user
 app.get("/api/users", auth, isSuperAdmin, getUsers); //admin 
-app.put("/api/users/:id", updateUserById); //admin
-app.delete("/api/users/:id", deleteUserById); //admin
+app.put("/api/users/:id", auth, isSuperAdmin, updateUserById); //admin
+app.delete("/api/users/:id", auth, isSuperAdmin, deleteUserById); //admin
 
 //Service routes
 //create service

@@ -4,6 +4,7 @@ import { comparePassword } from "../helpers/password-utilities";
 import { FindOperator } from "typeorm/find-options/FindOperator";
 import { Like } from "typeorm";
 import bcrypt from "bcrypt";
+import { capitalizeFirstLetter } from "../helpers/validation-utilities";
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -89,12 +90,12 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
         const updateFields: updateFieldsI = {};
 
         if (name) {
-            name = name.trim();
+            name = capitalizeFirstLetter(name.trim());
             updateFields.name = name;
         }
         
         if (surname) {
-            surname = surname.trim();
+            surname = capitalizeFirstLetter(surname.trim());
             updateFields.surname = surname;
         }
 
@@ -270,7 +271,12 @@ export const deactivateUser = async (req: Request, res: Response) => {
 export const updateUserById = async (req: Request, res: Response) => { //update multiple fields. Should I update one field at a time? // ask for login before updating??
     try {
         const targetUserId = parseInt(req.params.id);
-        let { name, email } = req.body; // change to const
+        let { name, surname, email } = req.body; // change to const
+        interface updateFieldsI {
+            name?: string,
+            surname?: string,
+            email?: string
+        }
 
         const targetUser = await User.findOneBy({ id: targetUserId });
         if (!targetUser) {
@@ -278,17 +284,22 @@ export const updateUserById = async (req: Request, res: Response) => { //update 
         }
 
         // TODO implement interface for updateFields
-        let updateFields: { [key: string]: string } = {}; 
+        let updateFields: updateFieldsI = {}; 
 
         //TODO redo this whole section
         if (name) {
-            name = name.trim();
-            updateFields["name"] = name;
+            name = capitalizeFirstLetter(name.trim());
+            updateFields.name = name;
+        }
+
+        if (surname) {
+            surname = capitalizeFirstLetter(surname.trim());
+            updateFields.surname = surname;
         }
 
         if (email) {
             email = email.trim();
-            updateFields["email"] = email;
+            updateFields.email = email;
         }
 
         // if (updateFields["name"] && !validateUserName(updateFields["name"])) {
