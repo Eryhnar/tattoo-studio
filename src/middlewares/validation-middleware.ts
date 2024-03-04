@@ -265,20 +265,11 @@ export const serviceExists = async (req: Request, res: Response, next: NextFunct
 }
 
 export const validatePassword = (req: Request, res: Response, next: NextFunction) => {
-    const { password, oldPassword1, oldPassword2, newPassword, confirmPassword } = req.body;
-
-    // Validate password for registration
-    if (password && !isValidPasswordFormat(password)) {
-        return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
-    }
+    const { oldPassword, newPassword, newPasswordRepeat } = req.body;
 
     // Validate old passwords for password update
-    if (oldPassword1 && !isValidPasswordFormat(oldPassword1)) {
-        return res.status(400).json({ success: false, message: "Old password 1 must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
-    }
-
-    if (oldPassword2 && !isValidPasswordFormat(oldPassword2)) {
-        return res.status(400).json({ success: false, message: "Old password 2 must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
+    if (oldPassword && !isValidPasswordFormat(oldPassword)) {
+        return res.status(400).json({ success: false, message: "Old password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
     }
 
     // Validate new password for password update
@@ -287,7 +278,7 @@ export const validatePassword = (req: Request, res: Response, next: NextFunction
     }
 
     // Validate confirmation password for password update
-    if (confirmPassword && !isValidPasswordFormat(confirmPassword)) {
+    if (newPasswordRepeat && !isValidPasswordFormat(newPasswordRepeat)) {
         return res.status(400).json({ success: false, message: "Confirmation password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
     }
 

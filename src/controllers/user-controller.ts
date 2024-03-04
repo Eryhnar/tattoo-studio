@@ -3,6 +3,7 @@ import { User } from "../models/User";
 import { comparePassword } from "../helpers/password-utilities";
 import { FindOperator } from "typeorm/find-options/FindOperator";
 import { Like } from "typeorm";
+import bcrypt from "bcrypt";
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -80,7 +81,7 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
             email?: string
         }
 
-        
+
         // if (!await User.findOne({ where: {id: userId} })) { //redundant
         //     return res.status(404).json({ success: false, message: "User not found" });
         // }
@@ -89,17 +90,17 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
 
         if (name) {
             name = name.trim();
-            updateFields["name"] = name;
+            updateFields.name = name;
         }
         
         if (surname) {
             surname = surname.trim();
-            updateFields["surname"] = surname;
+            updateFields.surname = surname;
         }
 
         if (email) {
             email = email.trim();
-            updateFields["email"] = email;
+            updateFields.email = email;
         }
 
         // if (updateFields["name"] && !validateUserName(updateFields["name"])) {
@@ -121,23 +122,40 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
     }
 };
 
-//// REHACER
 export const updateProfilePassword = async (req: Request, res: Response) => {
     try {
+        console.log(1);
         
-        const targetUserId = parseInt(req.params.id);
+        //const targetUserId = parseInt(req.params.id);
         const { oldPassword, newPassword, newPasswordRepeat } = req.body;
-
-        const targetUser = await User.findOneBy({ id: targetUserId });
-        if (!targetUser) {
-            return res.status(404).json(
-                { 
-                    success: false, 
-                    message: "User not found" 
+        const user = (await User.findOne(
+            { 
+                where: {id: req.tokenData.userId},
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    password: true,
+                    isActive: true,
                 }
-            );
-        }
+            }
+            
+        ))!;
+        console.log(oldPassword, newPassword, newPasswordRepeat, user.password)
+        console.log(user)
+
+        // const targetUser = await User.findOneBy({ id: targetUserId });
+        // if (!targetUser) {
+        //     return res.status(404).json(
+        //         { 
+        //             success: false, 
+        //             message: "User not found" 
+        //         }
+        //     );
+        // }
         if (newPassword !== newPasswordRepeat) {
+            console.log(2);
             return res.status(400).json(
                 { 
                     success: false, 
@@ -153,7 +171,9 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         //         }
         //     );
         // };
-        if (!await comparePassword(oldPassword, targetUser.password)) {
+
+        if (!await comparePassword(oldPassword, user.password)) {
+            console.log(3);
             return res.status(400).json(
                 { 
                     success: false, 
@@ -161,7 +181,9 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
                 }
             );
         }
-        User.update({ id: targetUserId }, { password: newPassword });
+        console.log(4);
+        const newHash = await bcrypt.hash(newPassword, 10);
+        User.update({ id: user.id }, { password: newHash });
         return res.status(200).json(
             { 
                 success: true, 
@@ -170,6 +192,7 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         );
 
     } catch (error) {
+        console.log(5);
         return res.status(500).json(
             { 
                 success: false, 
@@ -184,7 +207,18 @@ export const deactivateUser = async (req: Request, res: Response) => {
     try {
         const password = req.body.password;
         const targetUserId = req.tokenData.userId;
-        const targetUser = await User.findOneBy({ id: targetUserId });
+        const targetUser = await User.findOne(
+            { 
+                where: {id: targetUserId},
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    password: true,
+                    isActive: true,
+                }
+            });
 
         if (!targetUser) { //should not trigger and be redundant
             return res.status(404).json(
