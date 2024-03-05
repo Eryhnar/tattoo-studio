@@ -1,26 +1,18 @@
 import { Request, Response } from "express";
 import { validateCatalogueEntryDescription, validateCatalogueEntryName, validateId, validateImageUrl, validatePrice } from "../helpers/validation-utilities";
 import { Catalogue } from "../models/Catalogue";
+import { User } from "../models/User";
+import { Service } from "../models/Service";
+import { FindOperator, Like } from "typeorm";
 
 export const createCatalogueEntry = async (req: Request, res: Response) => {
     try {
         const { name, description, artistId, serviceId, price, beforeImage, afterImage  } = req.body;
         interface CatalogueEntryI {
-            name: string,
             description?: string,
-            artistId: number,
-            serviceId: number,
-            price: number,
             beforeImage?: string,
-            afterImage: string
         }
-        const catalogueEntry: CatalogueEntryI = {
-            name: "",
-            artistId: 0,
-            serviceId: 0,
-            price: 0,
-            afterImage: ""
-        };
+        const catalogueEntry: CatalogueEntryI = {};
 
         if (!name || !artistId || !serviceId || !price || !afterImage) {
             return res.status(400).json(
@@ -40,7 +32,6 @@ export const createCatalogueEntry = async (req: Request, res: Response) => {
                 }
             );
         }
-        catalogueEntry.name = name.trim();
 
         //validate description
         if (description && !validateCatalogueEntryDescription(description)) {
@@ -56,64 +47,97 @@ export const createCatalogueEntry = async (req: Request, res: Response) => {
         }
         
         //validate artistId 
-        if (!validateId(artistId)) {
+        if (!validateId(parseInt(artistId))) {
             return res.status(400).json(
                 {
                     success: false,
-                    message: "Artist ID must be a possitive number"
+                    message: "Artist ID must be a positive number"
                 }
             );
         }
-        catalogueEntry.artistId = artistId;
+        const artist = await User.findOne(
+            { 
+                where: { id: parseInt(artistId) },
+                relations: {
+                    role: true
+                } 
+            }
+        );
+        console.log(artist);
+
+        if (artist?.role.name !== "artist" || !artist) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "Artist not found"
+                }
+            );
+        }
 
         //validate serviceId        
-        if (!validateId(serviceId)) {
+        if (!validateId(parseInt(serviceId))) {
             return res.status(400).json(
                 {
                     success: false,
-                    message: "Service ID must be a possitive number"
+                    message: "Service ID must be a positive number"
                 }
             );
         }
-        catalogueEntry.serviceId = serviceId;
+        const service = await Service.findOne({ where: { id: parseInt(serviceId) } });
+        if (!service) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "Service not found"
+                }
+            );
+        }
 
         //validate price 
-        if (!validatePrice(price)) {
+        if (!validatePrice(parseInt(price))) {
             return res.status(400).json(
                 {
                     success: false,
-                    message: "Price must be a possitive number"
+                    message: "Price must be a positive number"
                 }
             );
         }
-        catalogueEntry.price = price;
 
-        //validate beforeImage 
-        if (beforeImage && !validateImageUrl(beforeImage)) {
-            return res.status(400).json(
-                {
-                    success: false,
-                    message: "Before image must be a valid URL"
-                }
-            );
-        }
+        //validate beforeImage TODO fix URL validation TODO validate it does not exist
+        // if (beforeImage && !validateImageUrl(beforeImage)) {
+        //     return res.status(400).json(
+        //         {
+        //             success: false,
+        //             message: "Before image must be a valid URL"
+        //         }
+        //     );
+        // }
         if (beforeImage) {
             catalogueEntry.beforeImage = beforeImage.trim();
         }
 
-        //validate afterImage 
-        if (!validateImageUrl(afterImage)) {
-            return res.status(400).json(
-                {
-                    success: false,
-                    message: "After image must be a valid URL"
-                }
-            );
-        }
-        catalogueEntry.afterImage = afterImage.trim();
-
+        //validate afterImage TODO validate it does not exist
+        // if (!validateImageUrl(afterImage)) {
+        //     return res.status(400).json(
+        //         {
+        //             success: false,
+        //             message: "After image must be a valid URL"
+        //         }
+        //     );
+        // }
         //create catalogue entry
-        const newCatalogueEntry = await Catalogue.create(catalogueEntry).save();
+        //const newCatalogueEntry = await Catalogue.create(catalogueEntry).save();
+        const newCatalogueEntry = await Catalogue.create(
+            {
+                name: name.trim() as string,
+                description: catalogueEntry.description ? catalogueEntry.description.trim() : undefined,
+                artist: artist as User,
+                service: service as Service,
+                price: parseInt(price) as number,
+                beforeImage: catalogueEntry.beforeImage ? catalogueEntry.beforeImage.trim() : undefined,
+                afterImage: afterImage.trim() as string
+            }
+        ).save();
 
         res.status(201).json(
             {
@@ -142,8 +166,8 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
         interface CatalogueEntryI {
             name?: string,
             description?: string,
-            artistId?: number,
-            serviceId?: number,
+            artist?: User,
+            service?: Service,
             price?: number,
             beforeImage?: string,
             afterImage?: string
@@ -183,7 +207,24 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
                     }
                 );
             }
-            updateFields.artistId = artistId;
+            const artist = await User.findOne(
+                { 
+                    where: { id: parseInt(artistId) },
+                    relations: {
+                        role: true
+                    } 
+                }
+            );
+    
+            if (artist?.role.name === "artist" || !artist) {
+                return res.status(404).json(
+                    {
+                        success: false,
+                        message: "Artist not found"
+                    }
+                );
+            }
+            updateFields.artist = artist;
         }
 
         if (serviceId) {
@@ -195,7 +236,16 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
                     }
                 );
             }
-            updateFields.serviceId = serviceId;
+            const service = await Service.findOne({ where: { id: parseInt(serviceId) } });
+            if (!service) {
+                return res.status(404).json(
+                    {
+                        success: false,
+                        message: "Service not found"
+                    }
+                );
+            }
+            updateFields.service = serviceId;
         }
 
         if (price) {
@@ -209,7 +259,7 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
             }
             updateFields.price = price;
         }
-
+        // TODO validate beforeImage does not exist in the database
         if (beforeImage) {
             if (!validateImageUrl(beforeImage.trim())) {
                 return res.status(400).json(
@@ -221,7 +271,7 @@ export const updateCatalogueEntry = async (req: Request, res: Response) => {
             }
             updateFields.beforeImage = beforeImage.trim();
         }
-
+        // TODO validate afterImage does not exist in the database
         if (afterImage) {
             if (!validateImageUrl(afterImage.trim())) {
                 return res.status(400).json(
@@ -311,53 +361,78 @@ export const deleteCatalogueEntry = async (req: Request, res: Response) => {
 
 export const getCatalogueEntries = async (req: Request, res: Response) => {
     try {
-        const { name, artistId, serviceId } = req.query;
+        const { name, artistId, serviceId, artistName, serviceName } = req.query;
         interface catalogueEntriesFiltersI {
-            name?: string,
-            artistId?: number,
-            serviceId?: number
+            name?: FindOperator<string>,
+            artistId?: FindOperator<string>,
+            serviceId?: FindOperator<string>,
+            artistName?: FindOperator<string>,
+            serviceName?: FindOperator<string>
         }
         const catalogueEntriesFilters: catalogueEntriesFiltersI = {};
 
         if (name) {
-            if (!validateCatalogueEntryName(name)) {
-                return res.status(400).json(
-                    {
-                        success: false,
-                        message: "Invalid name"
-                    }
-                );
-            }
-            catalogueEntriesFilters.name = name as string;
+            catalogueEntriesFilters.name = Like("%" + name + "%");
         }
         
         if (artistId) {
             const artistIdInt = parseInt(artistId as string);
-            if (!validateId(artistIdInt)) {
-                return res.status(400).json(
-                    {
-                        success: false,
-                        message: "Invalid artist ID"
-                    }
-                );
-            }
-            catalogueEntriesFilters.artistId = artistIdInt;
+            // if (!validateId(artistIdInt)) {
+            //     return res.status(400).json(
+            //         {
+            //             success: false,
+            //             message: "Invalid artist ID"
+            //         }
+            //     );
+            // }
+            catalogueEntriesFilters.artistId = Like("%" + artistIdInt + "%");
         }
         
         if (serviceId) {
             const serviceIdInt = parseInt(serviceId as string);
-            if (!validateId(serviceIdInt)) {
-                return res.status(400).json(
-                    {
-                        success: false,
-                        message: "Invalid service ID"
-                    }
-                );
-            }
-            catalogueEntriesFilters.serviceId = serviceIdInt;
+            // if (!validateId(serviceIdInt)) {
+            //     return res.status(400).json(
+            //         {
+            //             success: false,
+            //             message: "Invalid service ID"
+            //         }
+            //     );
+            // }
+            catalogueEntriesFilters.serviceId = Like("%" + serviceIdInt + "%");
         }
 
-        const catalogueEntries = await Catalogue.find({ where: catalogueEntriesFilters });
+        if (artistName) {
+            // TODO validate artistName ??
+            catalogueEntriesFilters.artistName = Like("%" + artistName + "%");
+        }
+
+        if (serviceName) {
+            // TODO validate serviceName ??
+            catalogueEntriesFilters.serviceName = Like("%" + serviceName + "%");
+        }
+
+        const catalogueEntries = await Catalogue.find(
+            { 
+                where: catalogueEntriesFilters,
+                relations: {
+                    artist: true,
+                    service: true
+                },
+                select: {
+                    name: true,
+                    description: true,
+                    artist: {
+                        name: true,
+                    },
+                    service: {
+                        name: true
+                    },
+                    price: true,
+                    beforeImage: true,
+                    afterImage: true,
+                }
+            }
+        );
 
         //const catalogueEntries = await Catalogue.find();
         return res.status(200).json(

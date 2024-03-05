@@ -11,7 +11,7 @@ export class Catalogue extends BaseEntity{
     @Column({ name: "name", unique: true})
     name!: string;
 
-    @Column({ name: "description"})
+    @Column({ name: "description", nullable: true})
     description!: string;
 
     @Column({ name: "price"})

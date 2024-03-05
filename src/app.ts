@@ -45,11 +45,11 @@ app.delete("/api/services/:id", auth, isSuperAdmin, validateTargetId, deleteServ
 
 //catalogue routes
 //create entry
-app.post("/api/catalogue", auth, isSuperAdmin, validateTargetId, createCatalogueEntry);
+app.post("/api/catalogue", auth, isSuperAdmin, createCatalogueEntry);
 //update entry
-app.put("/api/catalogue/:id", updateCatalogueEntry);
+app.put("/api/catalogue/:id", auth, isSuperAdmin, updateCatalogueEntry);
 //delete entry
-app.delete("/api/catalogue/:id", deleteCatalogueEntry);
+app.delete("/api/catalogue/:id", auth, isSuperAdmin, deleteCatalogueEntry);
 //get all entries
 app.get("/api/catalogue", getCatalogueEntries);
 
