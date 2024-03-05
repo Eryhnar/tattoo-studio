@@ -6,15 +6,15 @@ export const createService = async (req: Request, res: Response) => {
         const { name, description, photo } = req.body;
         interface ServiceFieldsI {
             name: string,
-            description: string,
+            description?: string,
             photo?: string
         }
 
-        if ( !name || !description ) {
+        if ( !name ) {
             return res.status(400).json(
                 { 
                     success: false,
-                    message: "Name and description are required"
+                    message: "Name is required"
                 }
             );
         }

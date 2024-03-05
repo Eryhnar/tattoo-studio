@@ -31,7 +31,7 @@ app.delete("/api/users/:id", auth, isSuperAdmin, deleteUserById); //admin
 
 //Service routes
 //create service
-app.post("/api/services", createService);
+app.post("/api/services", auth, isSuperAdmin, createService);
 //get all services
 app.get("/api/services", getServices);
 //update service
