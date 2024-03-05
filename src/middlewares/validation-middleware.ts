@@ -40,10 +40,8 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
 
-        console.log("1. Token:", token);
 
         if (!token) {
-            console.log("2. Token not found");
             return res.status(401).json(
                 {
                     success: false,
@@ -57,7 +55,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
             process.env.JWT_SECRET as string
         )
 
-        console.log("3. Decoded token:", decoded);
 
         req.tokenData = decoded as TokenData;
         const { userId, roleName } = req.tokenData;
@@ -82,12 +79,10 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
             }
         );
         const { isActive, ...tokenUser } = user as User;
-        console.log("4. User:", user);
 
         // verify if user exists and is active and role matches the token
         // TODO verify token in session database
         if (!user || !user.isActive || roleName !== user.role.name) {
-            console.log("5. Unauthorized");
             return res.status(401).json(
                 {
                     success: false,
@@ -99,7 +94,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         req.body.tokenUser = tokenUser;
         next();
     } catch (error) {
-        console.log("6. Error:", error);
         return res.status(500).json(
             {
                 success: false,

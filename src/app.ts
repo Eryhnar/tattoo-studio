@@ -4,7 +4,7 @@ import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
-import { cancelAppointment, createAppointment, deleteAppointment, getAllAppointments, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
+import { cancelAppointment, createAppointment, deleteAppointment, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
 import { auth, isSuperAdmin, validateEmail, validatePassword, validateTargetId, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
 
 export const app: Application = express();
@@ -55,17 +55,17 @@ app.get("/api/catalogue", getCatalogueEntries);
 
 //appointment routes
 //create appointment
-app.post("/api/appointments", createAppointment);
+app.post("/api/appointments", auth, createAppointment);
 //update appointment by id
-app.put("/api/appointments/:id", updateAppointment);
+app.put("/api/appointments/:id", auth, updateAppointment);
 //cancel appointment by id
-app.put("/api/appointments/:id/cancel", cancelAppointment);
-//delete appointment by id
-app.delete("/api/appointments/:id", deleteAppointment); //admin
+app.put("/api/appointments/:id/cancel", auth, cancelAppointment);
 //get all appointments (admin)
-app.get("/api/appointments", getAllAppointments); //admin
+app.get("/api/appointments", auth, getAppointments);
 //get appointments
-app.get("/api/appointments", getAppointments); 
+//app.get("/api/appointments", getAllAppointments); //admin
 //get appointment by id
-app.get("/api/appointments/:id", getAppointmentById);
+app.get("/api/appointments/:id", auth, getAppointmentById);
 //get appointment by service
+//delete appointment by id
+app.delete("/api/appointments/:id", auth, isSuperAdmin, deleteAppointment); //admin

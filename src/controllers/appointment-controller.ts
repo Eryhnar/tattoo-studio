@@ -2,26 +2,78 @@ import { Request, Response } from "express";
 import { Appointment, AppointmentStatus } from "../models/Appointment";
 import { User } from "../models/User";
 import { Service } from "../models/Service";
-import { FindOperator, Like } from "typeorm";
+import { FindOperator, Like, Not } from "typeorm";
 import { isValidDate, validateId } from "../helpers/validation-utilities";
+import { Catalogue } from "../models/Catalogue";
 //import Reference from 'typeorm';
 
 export const createAppointment = async (req: Request, res: Response) => {
     try {
-        const { serviceId, artistId, date, time } = req.body;
-        const customerId = req.tokenData.userId; //not true
+        const { serviceId, artistId, date,  customerId, catalogueId } = req.body;
+        //TODO fix types
+        let customer: User | null;
+        let artist: User | null;
+        let service: Service | null;
 
-        if (!serviceId || !date || !time) {
-            return res.status(400).json(
+        const user = await User.findOne(
+            { 
+                where: { id: req.tokenData.userId },
+                relations: {
+                    role: true
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    role: {
+                        name: true
+                    }
+                }
+            }
+        );
+        if (user?.role.name === "customer") {
+            customer = user;
+            if (!artistId) {
+                return res.status(400).json(
+                    { 
+                        success: false, 
+                        message: "Please enter artistId" 
+                    }
+                );
+            }
+            artist = await User.findOne(
                 { 
-                    success: false, 
-                    message: "Please enter serviceId, date and time" 
+                    where: { id: artistId },
+                    relations: {
+                        role: true
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        role: {
+                            name: true
+                        }
+                    } 
+                }
+            );
+        } else {
+            artist = user;
+            customer = await User.findOne(
+                { 
+                    where: { id: customerId },
+                    relations: {
+                        role: true
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        role: {
+                            name: true
+                        }
+                    } 
                 }
             );
         }
-        //no
-        const customer = await User.findOne({ where: { id: customerId } });
-        if (!customer) {
+        if (!customer || !artist) {
             return res.status(404).json(
                 { 
                     success: false, 
@@ -29,18 +81,55 @@ export const createAppointment = async (req: Request, res: Response) => {
                 }
             );
         }
-        //no
-        const artist = await User.findOne({ where: { id: artistId } });
-        if (!artist) {
-            return res.status(404).json(
+        if (artist.role.name !== "artist" ) {
+            return res.status(400).json(
                 { 
                     success: false, 
-                    message: "Artist not found" 
+                    message: "Invalid artist" 
                 }
             );
         }
 
-        const service = await Service.findOne({ where: { id: serviceId } });
+        if (!serviceId || !date || !catalogueId ) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Please enter serviceId, date and time" 
+                }
+            );
+        }
+
+        const catalogueEnty = await Catalogue.findOne({ where: { id: catalogueId } });
+        if (!catalogueEnty) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "Catalogue entry not found" 
+                }
+            );
+        }
+        //no
+        // const customer = await User.findOne({ where: { id: customerId } });
+        // if (!customer) {
+        //     return res.status(404).json(
+        //         { 
+        //             success: false, 
+        //             message: "User not found" 
+        //         }
+        //     );
+        // }
+        //no
+        // const artist = await User.findOne({ where: { id: artistId } });
+        // if (!artist) {
+        //     return res.status(404).json(
+        //         { 
+        //             success: false, 
+        //             message: "Artist not found" 
+        //         }
+        //     );
+        // }
+
+        service = await Service.findOne({ where: { id: serviceId } });
         if (!service) {
             return res.status(404).json(
                 { 
@@ -89,6 +178,7 @@ export const createAppointment = async (req: Request, res: Response) => {
                 artist: artist,
                 service: service,
                 date: date,
+                catalogue: catalogueEnty
             }
         ).save();
 
@@ -109,35 +199,53 @@ export const createAppointment = async (req: Request, res: Response) => {
         );
     }
 }
-
+//TODO!!!
+// if the token holder is customer take everything from the request body
+// if the token holder is NOT customer require EVERYTHING from the request body
 export const updateAppointment = async (req: Request, res: Response) => {
     try {
         //get the variables from the request
         const appointmentId = parseInt(req.params.id);
-        const customerId = req.tokenData.userId;
-        const { date, artist, service } = req.body;
-
+        const userId = req.tokenData.userId;
+        const { date, artistId, serviceId, catalogueId } = req.body;
         interface AppointmentFiltersI {
             date?: Date;
             artist?: User;
             service?: Service;
+            catalogueEntry?: Catalogue;
             //duration: number;
         }
         const appointmentFilters: AppointmentFiltersI = {};
 
-        //validate customer exists
-        const customer = await User.findOne({ where: { id: customerId } });
-        if (!customer) {
+        const user = await User.findOne(
+            { 
+                where: { id: userId },
+                relations: {
+                    role: true
+                }, 
+            }
+        );
+        if (!user) {
             return res.status(404).json(
                 { 
                     success: false, 
-                    message: "User not found" 
+                    message: "Authentication error" 
                 }
             );
         }
+        //validate appointmente exists
+        const appointment = await Appointment.findOne(
+            { 
+                where: { id: appointmentId },
+                relations: {
+                    customer: true,
+                    artist: true,
+                    service: true,
+                    catalogue: true,
+                } 
+            }
+        );
 
-        //get the appointment from the database
-        const appointment = await Appointment.findOne({ where: { id: appointmentId } });
         if (!appointment) {
             return res.status(404).json(
                 { 
@@ -146,68 +254,109 @@ export const updateAppointment = async (req: Request, res: Response) => {
                 }
             );
         }
+        // if user is customer, validate the appointment belongs to the customer
+        if (user.role.name === "customer" && appointment.customer.id !== userId) {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Unauthorized" 
+                }
+            );
+        }
 
         //validate the service exists
-        const newService = await Service.findOne({ where: { id: service } });
-        if (!newService) {
-            return res.status(404).json(
-                { 
-                    success: false, 
-                    message: "Service not found" 
-                }
-            );
+        if (serviceId) {
+            const newService = await Service.findOne({ where: { id: serviceId } });
+            if (!newService) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Service not found" 
+                    }
+                );
+            }
+            appointmentFilters.service = newService;
         }
-        appointmentFilters.service = newService;
 
         //validate the artist exists
-        const newArtist = await User.findOne({ where: { id: artist } });
-        if (!newArtist) {
-            return res.status(404).json(
-                { 
-                    success: false, 
-                    message: "Artist not found" 
-                }
-            );
+        if (artistId) {
+            const newArtist = await User.findOne({ where: { id: artistId } });
+            if (!newArtist) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Artist not found" 
+                    }
+                );
+            }
+            appointmentFilters.artist = newArtist;
         }
-        appointmentFilters.artist = newArtist;
 
         //validate the date is in the future
-        const appointmentDate = new Date(date);
-        if (appointmentDate < new Date()) {
-            return res.status(400).json(
-                { 
-                    success: false, 
-                    message: "Invalid date" 
-                }
-            );
+        if (date) {
+            const appointmentDate = new Date(date);
+            if (appointmentDate < new Date()) {
+                return res.status(400).json(
+                    { 
+                        success: false, 
+                        message: "Invalid date" 
+                    }
+                );
+            }
         }
 
-        //validate the customer is available
-        const customerAppointments = await Appointment.find({ where: { customer: customer, date: date } });
-        if (customerAppointments.length > 0) {
-            return res.status(400).json(
-                { 
-                    success: false, 
-                    message: "You already have an appointment at that time" 
-                }
-            );
+        //validate the customer is available 
+        if (date) {
+            const customerAppointments = await Appointment.find({ 
+                where: { 
+                    customer: appointment.customer, 
+                    date: date,
+                    id: Not(appointmentId) // Exclude the appointment being modified
+                } 
+            });
+            if (customerAppointments.length > 0) {
+                return res.status(400).json(
+                    { 
+                        success: false, 
+                        message: "Customer already has an appointment at that time" 
+                    }
+                );
+            }
+
+            // Validate the artist is available
+            const artistAppointments = await Appointment.find({ 
+                where: { 
+                    artist: appointmentFilters.artist, 
+                    date: date,
+                    id: Not(appointmentId) // Exclude the appointment being modified
+                } 
+            });
+            if (artistAppointments.length > 0) {
+                return res.status(400).json(
+                    { 
+                        success: false, 
+                        message: "Artist is not available at that time" 
+                    }
+                );
+            }
+            appointmentFilters.date = date;
         }
 
-        //validate the artist is available
-        const artistAppointments = await Appointment.find({ where: { artist: newArtist, date: date } });
-        if (artistAppointments.length > 0) {
-            return res.status(400).json(
-                { 
-                    success: false, 
-                    message: "Artist is not available at that time" 
-                }
-            );
+        //validate the catalogue entry exists
+        if (catalogueId) {
+            const newCatalogueEntry = await Catalogue.findOne({ where: { id: catalogueId } });
+            if (!newCatalogueEntry) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Catalogue entry not found" 
+                    }
+                );
+            }
+            appointmentFilters.catalogueEntry = newCatalogueEntry;
         }
-        appointmentFilters.date = appointmentDate;
-
         //TODO calculate duration
         // appointmentFilters.duration = newDuration;
-
         //update the appointment
         await Appointment.update({ id: appointmentId }, appointmentFilters);
 
@@ -229,13 +378,23 @@ export const updateAppointment = async (req: Request, res: Response) => {
     }
 }
 
+// TODO if the token holder is customer, validate the appointment belongs to the customer
+// if 
 export const cancelAppointment = async (req: Request, res: Response) => {
     try {
         const appointmentId = parseInt(req.params.id);
-        const customerId = req.tokenData.userId;
+        const userId = req.tokenData.userId;
 
-        const customer = await User.findOne({ where: { id: customerId, isActive: true } });
-        if (!customer) {
+        const user = await User.findOne(
+            { 
+                where: { id: userId },
+                relations: {
+                    role: true
+                }, 
+            }
+        );
+
+        if (!user) {
             return res.status(404).json(
                 { 
                     success: false, 
@@ -244,12 +403,31 @@ export const cancelAppointment = async (req: Request, res: Response) => {
             );
         }
 
-        const appointment = await Appointment.findOne({ where: { id: appointmentId, customer: customer } });
+        const appointment = await Appointment.findOne(
+            { 
+                where: { id: appointmentId },
+                relations: {
+                    customer: true,
+                    artist: true,
+                    service: true,
+                    catalogue: true,
+                } 
+            }
+        );
         if (!appointment || appointment.status !== "pending") {
             return res.status(404).json(
                 { 
                     success: false, 
                     message: "Appointment not found" 
+                }
+            );
+        }
+
+        if (user.role.name === "customer" && appointment.customer.id !== userId) {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Unauthorized" 
                 }
             );
         }
@@ -275,20 +453,31 @@ export const cancelAppointment = async (req: Request, res: Response) => {
 
 export const deleteAppointment = async (req: Request, res: Response) => {
     try {
-        const userId = req.tokenData.userId;
+        // const userId = req.tokenData.userId;
         const appointmentId = parseInt(req.params.id);
+        const user = req.body.tokenUser
+        // const user = await User.findOne({ where: { id: userId } });
+        // if (!user || !user.isActive || user.role.name !== "super_admin") {
+        //     return res.status(403).json(
+        //         { 
+        //             success: false, 
+        //             message: "Unauthorized" 
+        //         }
+        //     );
+        // }
 
-        const user = await User.findOne({ where: { id: userId } });
-        if (!user || !user.isActive || user.role.name !== "super_admin") {
-            return res.status(403).json(
-                { 
-                    success: false, 
-                    message: "Unauthorized" 
+        const appointment = await Appointment.findOne(
+            { 
+                where: { id: appointmentId },
+                relations: {
+                    customer: true,
+                    artist: true,
+                    service: true,
+                    catalogue: true,
                 }
-            );
-        }
+            }
+        );
 
-        const appointment = await Appointment.findOne({ where: { id: appointmentId } });
         if (!appointment) {
             return res.status(404).json(
                 { 
@@ -320,15 +509,24 @@ export const deleteAppointment = async (req: Request, res: Response) => {
 export const getAppointments = async (req: Request, res: Response) => {
     try {
         const { userId, roleName } = req.tokenData;
-        const { date, serviceName, artistName, customerName } = req.query;
+        const { date, serviceName, artistName, customerName, catalogueEntry } = req.query;
         interface queryFiltersI {
             date?: Date;
             serviceName?: FindOperator<string>;
             artistName?: FindOperator<string>;
             customerName?: FindOperator<string>;
+            catalogueEntry?: FindOperator<string>;
+            userId?: number;
         }
         
-        const user = await User.findOne({ where: { id: userId, isActive: true } });
+        const user = await User.findOne(
+            { 
+                where: { id: userId },
+                relations: {
+                    role: true
+                }, 
+            }
+        );
         if (!user) {
             return res.status(404).json(
                 { 
@@ -349,6 +547,7 @@ export const getAppointments = async (req: Request, res: Response) => {
         }
         const appointmentFilters: queryFiltersI = {};
 
+        //TODO check if redundant
         //validate if user is artist or customer
         if (roleName === 'artist') {
             appointmentFilters.artistName = Like("%"+user.name.toString()+"%");
@@ -412,12 +611,54 @@ export const getAppointments = async (req: Request, res: Response) => {
             }
             appointmentFilters.customerName = Like("%"+customerName.toString()+"%");
         }*/
-
-        const appointments = await Appointment.find(
-            {
-                where: appointmentFilters,
+        if (catalogueEntry) {
+            const catalogue = await Catalogue.findOne(
+                { 
+                    where: { name: catalogueEntry as string },
+                    relations: {
+                        appointments: true
+                    }
+                }
+            );
+            if (!catalogue) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Catalogue entry not found" 
+                    }
+                );
             }
-        );
+            appointmentFilters.catalogueEntry = Like("%"+catalogueEntry.toString()+"%");
+        }
+
+        let appointments: Appointment[] = [];
+        if (user.role.name === 'super_admin') {
+            appointments = await Appointment.find(
+                {
+                    where: appointmentFilters,
+                    relations: {
+                        customer: true,
+                        artist: true,
+                        service: true,
+                        catalogue: true
+                    }
+                }
+            );
+        
+        } else {
+            appointmentFilters.userId = userId;
+            appointments = await Appointment.find(
+                {
+                    where: appointmentFilters,
+                    relations: {
+                        customer: true,
+                        artist: true,
+                        service: true,
+                        catalogue: true
+                    }
+                }
+            );
+        }
         
         res.status(200).json(
             { 
@@ -441,31 +682,26 @@ export const getAppointmentById = async (req: Request, res: Response) => {
     try {
         const { userId, roleName } = req.tokenData;
         const appointmentId = parseInt(req.params.id);
+        const user = req.body.tokenUser
+        let appointment: Appointment | null;
 
-
-        //TODO validate user id
-        const user = await User.findOne({ where: { id: userId, isActive: true } });
-        if (!user) {
-            return res.status(404).json(
+        if (user.role.name === "customer") {
+            appointment = await Appointment.findOne({ where: { id: appointmentId, customer: user } });
+        } else {
+            appointment = await Appointment.findOne(
                 { 
-                    success: false, 
-                    message: "User not found" 
+                    where: { id: appointmentId },
+                    relations: {
+                        customer: true,
+                        artist: true,
+                        service: true,
+                        catalogue: true
+                    }
                 }
             );
         }
-        
-        if (user.role.name !== roleName) {
-            return res.status(403).json(
-                { 
-                    success: false, 
-                    message: "Unauthorized" 
-                }
-            );
-        }
-        const target = (roleName === 'artist') ? 'artist' : 'customer';
-        
+
         //TODO validate appointment id
-        const appointment = await Appointment.findOne({ where: { id: appointmentId, [target]: user } });
         if (!appointment) {
             return res.status(404).json(
                 { 
@@ -494,25 +730,25 @@ export const getAppointmentById = async (req: Request, res: Response) => {
     }
 }
 
-export const getAllAppointments = async (req: Request, res: Response) => {
-    try {
+// export const getAllAppointments = async (req: Request, res: Response) => {
+//     try {
 
-        const appointments = await Appointment.find();
+//         const appointments = await Appointment.find();
 
-        res.status(200).json(
-            { 
-                success: true, 
-                message: "Appointments retrieved successfully",
-                data: appointments
-            }
-        );
-    } catch (error) {
-        res.status(500).json(
-            { 
-                success: false, 
-                message: "Error fetching appointments", 
-                error: error 
-            }
-        );
-    }
-}
+//         res.status(200).json(
+//             { 
+//                 success: true, 
+//                 message: "Appointments retrieved successfully",
+//                 data: appointments
+//             }
+//         );
+//     } catch (error) {
+//         res.status(500).json(
+//             { 
+//                 success: false, 
+//                 message: "Error fetching appointments", 
+//                 error: error 
+//             }
+//         );
+//     }
+// }
