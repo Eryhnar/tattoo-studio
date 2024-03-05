@@ -57,18 +57,33 @@ export const getUsers = async (req: Request, res: Response) => {
 
 export const getProfile = async (req: Request, res: Response) => {
     try {
-        const userId = req.tokenData.userId;
-        //const user = await User.findOne({ where:{id: userId} });
         const user = req.body.tokenUser;
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
         }
 
-        return res.status(200).json({ success: true, message: "User retrieved successfully", data: user });
+        return res.status(200).json(
+            { 
+                success: true, 
+                message: "User retrieved successfully", 
+                data: user 
+            }
+        );
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Error fetching user", error: error });
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching user", 
+                error: error 
+            }
+        );
     }
 }
 

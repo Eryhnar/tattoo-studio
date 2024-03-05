@@ -136,26 +136,40 @@ export const isSuperAdmin = (req: Request, res: Response, next: NextFunction) =>
 
 
 //user exists
-export const targetUserExists = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = parseInt(req.params.id);
-    if (isNaN(userId)) {
+// export const targetUserExists = async (req: Request, res: Response, next: NextFunction) => {
+//     const userId = parseInt(req.params.id);
+//     if (isNaN(userId)) {
+//         return res.status(400).json(
+//             { 
+//                 success: false,
+//                 message: "Invalid user id"
+//             }
+//         );
+//     }
+//     const user = await User.findOne({ where: { id: userId } });
+//     if (!user) {
+//         return res.status(404).json(
+//             { 
+//                 success: false,
+//                 message: "No user exists with that id"
+//             }
+//         );
+//     }
+//     req.body.targetUser = user;
+//     next();
+// }
+
+export const validateTargetId = async (req: Request, res: Response, next: NextFunction) => {
+    const targetId = parseInt(req.params.id);
+    if (isNaN(targetId)) {
         return res.status(400).json(
             { 
                 success: false,
-                message: "Invalid user id"
+                message: "Invalid target id"
             }
         );
     }
-    const user = await User.findOne({ where: { id: userId } });
-    if (!user) {
-        return res.status(404).json(
-            { 
-                success: false,
-                message: "No user exists with that id"
-            }
-        );
-    }
-    req.body.targetUser = user;
+    req.body.targetId = targetId;
     next();
 }
 

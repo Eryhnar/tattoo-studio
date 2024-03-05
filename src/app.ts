@@ -5,7 +5,7 @@ import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, up
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 import { cancelAppointment, createAppointment, deleteAppointment, getAllAppointments, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
-import { auth, isSuperAdmin, validateEmail, validatePassword, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
+import { auth, isSuperAdmin, validateEmail, validatePassword, validateTargetId, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
 
 export const app: Application = express();
 
@@ -26,8 +26,8 @@ app.put("/api/users/profile", auth, validateUserName, validateUserSurname, valid
 app.put("/api/users/profile/password", auth, updateProfilePassword); //user
 app.put("/api/users/profile/delete", auth, deactivateUser); //user
 app.get("/api/users", auth, isSuperAdmin, getUsers); //admin 
-app.put("/api/users/:id", auth, isSuperAdmin, updateUserById); //admin
-app.delete("/api/users/:id", auth, isSuperAdmin, deleteUserById); //admin
+app.put("/api/users/:id", auth, isSuperAdmin, validateTargetId, updateUserById); //admin
+app.delete("/api/users/:id", auth, isSuperAdmin, validateTargetId, deleteUserById); //admin
 
 //Service routes
 //create service
@@ -35,9 +35,9 @@ app.post("/api/services", auth, isSuperAdmin, createService);
 //get all services
 app.get("/api/services", getServices);
 //update service
-app.put("/api/services/:id", updateService);
+app.put("/api/services/:id", auth, isSuperAdmin, validateTargetId, updateService);
 //delete service
-app.delete("/api/services/:id", deleteService);
+app.delete("/api/services/:id", auth, isSuperAdmin, validateTargetId, deleteService);
 
 
 //get service by id
@@ -45,7 +45,7 @@ app.delete("/api/services/:id", deleteService);
 
 //catalogue routes
 //create entry
-app.post("/api/catalogue", createCatalogueEntry);
+app.post("/api/catalogue", auth, isSuperAdmin, validateTargetId, createCatalogueEntry);
 //update entry
 app.put("/api/catalogue/:id", updateCatalogueEntry);
 //delete entry
