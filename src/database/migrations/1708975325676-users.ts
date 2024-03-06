@@ -17,7 +17,7 @@ export class Users1708975325676 implements MigrationInterface {
                     {
                         name: "name",
                         type: "varchar",
-                        length: "25"
+                        length: "25",
                     },
                     {
                         name: "surname",
@@ -36,9 +36,14 @@ export class Users1708975325676 implements MigrationInterface {
                         length: "225"
                     },
                     {
+                        name: "is_active",
+                        type: "boolean",
+                        default: true
+                    },
+                    {
                         name: "role_id",
                         type: "int",
-                        default: 4
+                        //default: 4
                     },
                     {
                         name: "created_at",

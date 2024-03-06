@@ -6,15 +6,15 @@ export const createService = async (req: Request, res: Response) => {
         const { name, description, photo } = req.body;
         interface ServiceFieldsI {
             name: string,
-            description: string,
+            description?: string,
             photo?: string
         }
 
-        if ( !name || !description ) {
+        if ( !name ) {
             return res.status(400).json(
                 { 
                     success: false,
-                    message: "Name and description are required"
+                    message: "Name is required"
                 }
             );
         }
@@ -61,6 +61,14 @@ export const createService = async (req: Request, res: Response) => {
 export const getServices = async (req: Request, res: Response) => {
     try {
         const services = await Service.find();
+        if (services.length === 0) {
+            return res.status(404).json(
+                { 
+                    success: false,
+                    message: "No services found"
+                }
+            );
+        }
         return res.status(200).json(
             { 
                 success: true,
@@ -82,15 +90,7 @@ export const getServices = async (req: Request, res: Response) => {
 export const updateService = async (req: Request, res: Response) => {
     try {
         const serviceId = parseInt(req.params.id);
-        if (isNaN(serviceId)) {
-            return res.status(400).json(
-                { 
-                    success: false,
-                    message: "Invalid service id"
-                }
-            );
-        }
-        
+                
         const { name, description, photo } = req.body;
         interface updateFieldsI {
             name?: string,
@@ -142,15 +142,7 @@ export const updateService = async (req: Request, res: Response) => {
 export const deleteService = async (req: Request, res: Response) => {
     try {
         const serviceId = parseInt(req.params.id);
-        if (isNaN(serviceId)) {
-            return res.status(400).json(
-                { 
-                    success: false,
-                    message: "Invalid service id"
-                }
-            );
-        }
-
+        
         const service = await Service.findOne({ where: {id: serviceId} });
         if (!service) {
             return res.status(404).json(

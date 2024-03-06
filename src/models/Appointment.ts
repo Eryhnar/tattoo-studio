@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm"
 import { Service } from "./Service";
 import { User } from "./User";
+import { Catalogue } from "./Catalogue";
 
 export enum AppointmentStatus {
     pending = "pending",
@@ -48,4 +49,8 @@ export class Appointment extends BaseEntity{
     @ManyToOne(() => Service, service => service.appointments)
     @JoinColumn({ name: "service_id" })
     service!: Service;
+
+    @ManyToOne(() => Catalogue, catalogue => catalogue.appointments, { nullable: true })
+    @JoinColumn({ name: "catalogue_id" })
+    catalogue!: Catalogue | null;
 }

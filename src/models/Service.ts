@@ -10,10 +10,10 @@ export class Service extends BaseEntity{
     @Column({ name: "name", unique: true})
     name!: string;
     
-    @Column({ name: "description"})
+    @Column({ name: "description", nullable: true})
     description!: string;
 
-    @Column({ name: "photo"})
+    @Column({ name: "photo", nullable: true})
     photo!: string;
 
     @OneToMany(() => Catalogue, catalogue => catalogue.service)
