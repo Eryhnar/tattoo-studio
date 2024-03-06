@@ -1,6 +1,6 @@
 USE tattoo_studio;
 
-INSERT INTO appointments (date, status, created_at, updated_at, user_id, artist_id, service_id, catalogue_id) VALUES
+INSERT INTO appointments (date, status, created_at, updated_at, customer_id, artist_id, service_id, catalogue_id) VALUES
 ('2021-12-01 10:00:00', 'pending', NOW(), NOW(), 1, 1, 3, 1),
 ('2021-12-01 11:00:00', 'pending', NOW(), NOW(), 2, 1, 7, 2),
 ('2021-12-01 12:00:00', 'pending', NOW(), NOW(), 3, 2, 3, 3),

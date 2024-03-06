@@ -12,7 +12,7 @@ export const app: Application = express();
 app.use(express.json());
 
 //roles routes
-app.get("/roles", auth, isSuperAdmin, getRoles);
+app.get("/api/roles", auth, isSuperAdmin, getRoles);
 //app.post("/roles", createRole);
 //app.put("/roles", updateRole);
 
