@@ -13,8 +13,8 @@ app.use(express.json());
 
 //roles routes
 app.get("/api/roles", auth, isSuperAdmin, getRoles);
-//app.post("/roles", createRole);
-//app.put("/roles", updateRole);
+//app.post("/roles", auth, isSuperAdmin, createRole);
+//app.put("/roles", auth, isSuperAdmin, updateRole);
 
 //auth routes
 app.post("/api/register", validateUserName, validateUserSurname, validateEmail, validatePassword, register);
@@ -23,7 +23,7 @@ app.post("/api/login", validateEmail, validatePassword, login);
 //user routes
 app.get("/api/users/profile", auth, getProfile) //user
 app.put("/api/users/profile", auth, validateUserName, validateUserSurname, validateEmail, updateProfile) //user
-app.put("/api/users/profile/password", auth, updateProfilePassword); //user
+app.put("/api/users/profile/password", auth, updateProfilePassword); //user TODO add password middleware here too.
 app.put("/api/users/profile/delete", auth, deactivateUser); //user
 app.get("/api/users", auth, isSuperAdmin, getUsers); //admin 
 app.put("/api/users/:id", auth, isSuperAdmin, validateTargetId, updateUserById); //admin
@@ -47,9 +47,9 @@ app.delete("/api/services/:id", auth, isSuperAdmin, validateTargetId, deleteServ
 //create entry
 app.post("/api/catalogue", auth, isSuperAdmin, createCatalogueEntry);
 //update entry
-app.put("/api/catalogue/:id", auth, isSuperAdmin, updateCatalogueEntry);
+app.put("/api/catalogue/:id", auth, isSuperAdmin,validateTargetId, updateCatalogueEntry);
 //delete entry
-app.delete("/api/catalogue/:id", auth, isSuperAdmin, deleteCatalogueEntry);
+app.delete("/api/catalogue/:id", auth, isSuperAdmin,validateTargetId, deleteCatalogueEntry);
 //get all entries
 app.get("/api/catalogue", getCatalogueEntries);
 
@@ -57,15 +57,15 @@ app.get("/api/catalogue", getCatalogueEntries);
 //create appointment
 app.post("/api/appointments", auth, createAppointment);
 //update appointment by id
-app.put("/api/appointments/:id", auth, updateAppointment);
+app.put("/api/appointments/:id", auth, validateTargetId, updateAppointment);
 //cancel appointment by id
-app.put("/api/appointments/:id/cancel", auth, cancelAppointment);
+app.put("/api/appointments/:id/cancel", auth, validateTargetId, cancelAppointment);
 //get all appointments (admin)
 app.get("/api/appointments", auth, getAppointments);
 //get appointments
 //app.get("/api/appointments", getAllAppointments); //admin
 //get appointment by id
-app.get("/api/appointments/:id", auth, getAppointmentById);
+app.get("/api/appointments/:id", auth, validateTargetId, getAppointmentById);
 //get appointment by service
 //delete appointment by id
-app.delete("/api/appointments/:id", auth, isSuperAdmin, deleteAppointment); //admin
+app.delete("/api/appointments/:id", auth, isSuperAdmin, validateTargetId, deleteAppointment); //admin

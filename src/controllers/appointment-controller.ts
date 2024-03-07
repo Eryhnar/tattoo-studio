@@ -15,6 +15,7 @@ export const createAppointment = async (req: Request, res: Response) => {
         let artist: User | null;
         let service: Service | null;
 
+        //TODO I think role is already in req.body.user
         const user = await User.findOne(
             { 
                 where: { id: req.tokenData.userId },
@@ -55,7 +56,7 @@ export const createAppointment = async (req: Request, res: Response) => {
                     } 
                 }
             );
-        } else {
+        } else { //TODO edit to allow artitsts to assign appointment to another artist
             artist = user;
             customer = await User.findOne(
                 { 
@@ -81,7 +82,7 @@ export const createAppointment = async (req: Request, res: Response) => {
                 }
             );
         }
-        if (artist.role.name !== "artist" ) {
+        if (artist.role.name !== "artist" ) { //because every user can be the customer of an appointment but only an artist can be the artist
             return res.status(400).json(
                 { 
                     success: false, 

@@ -814,8 +814,13 @@ DELETE /api/appointments/1
 
 </details>
 
+## Credentials
+    These are some of the credentials provided in the seeder.
+    - user1@example.com password: Aa123456 super_admin
+    - user3@example.com password: Aa123456 artist
+    - user4@example.com password: Aa123456 customer
+
 ## Roadmap
-- finish the endpoints section of the README.
 - check update methods have at least 1 param
 - allow admins and super_admins to create appointments and users
 - move middlewares and helpers onto their own files.
