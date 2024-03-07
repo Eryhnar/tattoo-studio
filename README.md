@@ -69,6 +69,7 @@ Technologies employed:
 6. ``` $  ``` Run the seeders.
 7. ``` $ npm run dev ``` Start the server.
 8. ``` $ npm run migrations-revert ``` If you ever need to revert them.
+9. Import the routes from the thunder routes collection folder.
 
 ## Endpoints
 <details>
