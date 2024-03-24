@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
@@ -10,6 +10,15 @@ import { auth, isSuperAdmin, validateEmail, validatePassword, validateTargetId, 
 export const app: Application = express();
 
 app.use(express.json());
+
+app.get("/api/healthy", (req: Request, res: Response) => (
+    res.status(200).json(
+        {
+            success: true,
+            message: "Server is healthy"
+        }
+    )
+))
 
 //roles routes
 app.get("/api/roles", auth, isSuperAdmin, getRoles);
