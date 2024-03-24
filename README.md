@@ -66,9 +66,10 @@ Technologies employed:
 3. Set the .env file and adjust the params for the database.
 4. Connect to the database.
 5. ``` $ npm run migrations-run ``` 
-6. ``` $  ``` Run the seeders.
-7. ``` $ npm run dev ``` Start the server.
+6. ``` $ npm run dev ``` Start the server.
+7. ``` $  ``` Run the seeders.
 8. ``` $ npm run migrations-revert ``` If you ever need to revert them.
+9. Import the routes from the thunder routes collection folder.
 
 ## Endpoints
 <details>
@@ -814,8 +815,13 @@ DELETE /api/appointments/1
 
 </details>
 
+## Credentials
+    These are some of the credentials provided in the seeder.
+    - user1@example.com password: Aa123456 super_admin
+    - user3@example.com password: Aa123456 artist
+    - user4@example.com password: Aa123456 customer
+
 ## Roadmap
-- finish the endpoints section of the README.
 - check update methods have at least 1 param
 - allow admins and super_admins to create appointments and users
 - move middlewares and helpers onto their own files.
