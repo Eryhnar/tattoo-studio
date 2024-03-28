@@ -3,6 +3,7 @@ import { User } from "../models/User";
 export type TokenData = {
     userId: number;
     roleName: string;
+    name: string;
 };
 
 declare global {
