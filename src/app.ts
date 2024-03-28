@@ -6,10 +6,12 @@ import { createService, deleteService, getServices, updateService } from "./cont
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 import { cancelAppointment, createAppointment, deleteAppointment, getAppointmentById, getAppointments, getOwnAppointments, updateAppointment } from "./controllers/appointment-controller";
 import { auth, isSuperAdmin, validateEmail, validatePassword, validateTargetId, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
+import cors from "cors";
 
 export const app: Application = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/api/healthy", (req: Request, res: Response) => (
     res.status(200).json(
