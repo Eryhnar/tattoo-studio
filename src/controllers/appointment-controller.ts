@@ -510,6 +510,47 @@ export const deleteAppointment = async (req: Request, res: Response) => {
     }
 }
 
+export const getOwnAppointments = async (req: Request, res: Response) => {
+    try {
+        const { userId, roleName } = req.tokenData;
+        const customer = await User.findOne({ where: { id: userId } });
+        if (!customer) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+        const appointments = await Appointment.find(
+            { 
+                where: { customer: customer },
+                relations: {
+                    customer: true,
+                    artist: true,
+                    service: true,
+                    catalogue: true
+                }
+            }
+        );
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointments retrieved successfully",
+                data: appointments
+            }
+        );
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching appointments", 
+                error: error 
+            }
+        );
+    }
+}
+
 export const getAppointments = async (req: Request, res: Response) => {
     try {
         const { userId, roleName } = req.tokenData;

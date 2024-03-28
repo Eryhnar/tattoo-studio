@@ -4,7 +4,7 @@ import { login, register } from "./controllers/auth-controller";
 import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
-import { cancelAppointment, createAppointment, deleteAppointment, getAppointmentById, getAppointments, updateAppointment } from "./controllers/appointment-controller";
+import { cancelAppointment, createAppointment, deleteAppointment, getAppointmentById, getAppointments, getOwnAppointments, updateAppointment } from "./controllers/appointment-controller";
 import { auth, isSuperAdmin, validateEmail, validatePassword, validateTargetId, validateUserName, validateUserSurname } from "./middlewares/validation-middleware";
 
 export const app: Application = express();
@@ -65,6 +65,8 @@ app.get("/api/catalogue", getCatalogueEntries);
 //appointment routes
 //create appointment
 app.post("/api/appointments", auth, createAppointment);
+//get own appointments
+app.get("/api/appointments/user", auth, getOwnAppointments);
 //update appointment by id
 app.put("/api/appointments/:id", auth, validateTargetId, updateAppointment);
 //cancel appointment by id
