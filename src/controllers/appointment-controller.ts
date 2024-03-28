@@ -516,6 +516,17 @@ export const getOwnAppointments = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const skip = (page - 1) * limit;
         const { userId, roleName } = req.tokenData;
+        const status = req.query.status as AppointmentStatus || "pending";
+
+        if (status !== "pending" && status !== "done" && status !== "cancelled") {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid appointment status" 
+                }
+            );
+        }
+
         const customer = await User.findOne({ where: { id: userId } });
         if (!customer) {
             return res.status(404).json(
@@ -527,7 +538,7 @@ export const getOwnAppointments = async (req: Request, res: Response) => {
         }
         const appointments = await Appointment.find(
             { 
-                where: { customer: customer },
+                where: { customer: customer, status: status },
                 relations: {
                     customer: true,
                     artist: true,

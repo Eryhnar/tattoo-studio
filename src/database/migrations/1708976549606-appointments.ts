@@ -37,7 +37,7 @@ export class Appointments1708976549606 implements MigrationInterface {
                     {
                         name: "status",
                         type: "enum",
-                        enum: ["pending", "confirmed", "cancelled"],
+                        enum: ["pending", "done", "cancelled"],
                         default: "'pending'"
                     },
                     {

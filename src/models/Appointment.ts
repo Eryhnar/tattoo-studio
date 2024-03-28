@@ -5,7 +5,7 @@ import { Catalogue } from "./Catalogue";
 
 export enum AppointmentStatus {
     pending = "pending",
-    passed = "confirmed",
+    done = "done",
     cancelled = "cancelled"
 }
 
