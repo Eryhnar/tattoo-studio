@@ -14,6 +14,7 @@ export const createAppointment = async (req: Request, res: Response) => {
         let customer: User | null;
         let artist: User | null;
         let service: Service | null;
+        let catalogueEnty: Catalogue | null = null;
 
         //TODO I think role is already in req.body.user
         const user = await User.findOne(
@@ -100,14 +101,16 @@ export const createAppointment = async (req: Request, res: Response) => {
             );
         }
 
-        const catalogueEnty = await Catalogue.findOne({ where: { id: catalogueId } });
-        if (!catalogueEnty) {
-            return res.status(404).json(
-                { 
-                    success: false, 
-                    message: "Catalogue entry not found" 
-                }
-            );
+        if (catalogueId) {
+            const catalogueEnty = await Catalogue.findOne({ where: { id: catalogueId } });
+            if (!catalogueEnty) {
+                return res.status(404).json(
+                    { 
+                        success: false, 
+                        message: "Catalogue entry not found" 
+                    }
+                );
+            }
         }
         //no
         // const customer = await User.findOne({ where: { id: customerId } });
