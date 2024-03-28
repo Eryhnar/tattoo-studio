@@ -512,6 +512,9 @@ export const deleteAppointment = async (req: Request, res: Response) => {
 
 export const getOwnAppointments = async (req: Request, res: Response) => {
     try {
+        const limit = parseInt(req.query.limit as string) || 10;
+        const page = parseInt(req.query.page as string) || 1;
+        const skip = (page - 1) * limit;
         const { userId, roleName } = req.tokenData;
         const customer = await User.findOne({ where: { id: userId } });
         if (!customer) {
@@ -530,7 +533,9 @@ export const getOwnAppointments = async (req: Request, res: Response) => {
                     artist: true,
                     service: true,
                     catalogue: true
-                }
+                },
+                skip: skip,
+                take: limit
             }
         );
         res.status(200).json(
