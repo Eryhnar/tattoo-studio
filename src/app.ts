@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import { getRoles, updateRole, createRole } from "./controllers/role-controller";
 import { login, register } from "./controllers/auth-controller";
-import { deactivateUser, deleteUserById, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
+import { deactivateUser, deleteUserById, getArtists, getProfile, getUsers, updateProfile, updateProfilePassword, updateUserById } from "./controllers/user-controller";
 import { createService, deleteService, getServices, updateService } from "./controllers/service-controller";
 import { createCatalogueEntry, deleteCatalogueEntry, getCatalogueEntries, updateCatalogueEntry } from "./controllers/catalogue-controller";
 import { cancelAppointment, createAppointment, deleteAppointment, getAppointmentById, getAppointments, getOwnAppointments, updateAppointment } from "./controllers/appointment-controller";
@@ -32,6 +32,7 @@ app.post("/api/register", validateUserName, validateUserSurname, validateEmail, 
 app.post("/api/login", validateEmail, validatePassword, login);
 
 //user routes
+app.get("/api/users/artists", getArtists)
 app.get("/api/users/profile", auth, getProfile) //user
 app.put("/api/users/profile", auth, validateUserName, validateUserSurname, validateEmail, updateProfile) //user
 app.put("/api/users/profile/password", auth, updateProfilePassword); //user TODO add password middleware here too.

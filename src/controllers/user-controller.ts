@@ -371,4 +371,43 @@ export const deleteUserById = async (req: Request, res: Response) => {
 
     }
 };
+
+export const getArtists = async (req: Request, res: Response) => {
+    try {
+        const artists = await User.find(
+            {
+                where: { role: 
+                    {
+                        id: 3
+                    } 
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            }
+        );
+
+        return res.status(200).json(
+            { 
+                success: true, 
+                message: "Artists retrieved successfully", 
+                data: artists 
+            }
+        );
+
+    } catch (error) {
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching artists", 
+                error: error 
+            }
+        );
+    }
+}
     
