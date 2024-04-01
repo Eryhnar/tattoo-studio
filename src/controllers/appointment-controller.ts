@@ -92,7 +92,7 @@ export const createAppointment = async (req: Request, res: Response) => {
             );
         }
 
-        if (!serviceId || !date || !catalogueId ) {
+        if (!serviceId || !date ) {
             return res.status(400).json(
                 { 
                     success: false, 
@@ -504,6 +504,63 @@ export const deleteAppointment = async (req: Request, res: Response) => {
             { 
                 success: false, 
                 message: "Error deleting appointment", 
+                error: error 
+            }
+        );
+    }
+}
+
+export const getOwnAppointments = async (req: Request, res: Response) => {
+    try {
+        const limit = parseInt(req.query.limit as string) || 10;
+        const page = parseInt(req.query.page as string) || 1;
+        const skip = (page - 1) * limit;
+        const { userId, roleName } = req.tokenData;
+        const status = req.query.status as AppointmentStatus || "pending";
+
+        if (status !== "pending" && status !== "done" && status !== "cancelled") {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Invalid appointment status" 
+                }
+            );
+        }
+
+        const customer = await User.findOne({ where: { id: userId } });
+        if (!customer) {
+            return res.status(404).json(
+                { 
+                    success: false, 
+                    message: "User not found" 
+                }
+            );
+        }
+        const appointments = await Appointment.find(
+            { 
+                where: { customer: customer, status: status },
+                relations: {
+                    customer: true,
+                    artist: true,
+                    service: true,
+                    catalogue: true
+                },
+                skip: skip,
+                take: limit
+            }
+        );
+        res.status(200).json(
+            { 
+                success: true, 
+                message: "Appointments retrieved successfully",
+                data: appointments
+            }
+        );
+    } catch (error) {
+        res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching appointments", 
                 error: error 
             }
         );

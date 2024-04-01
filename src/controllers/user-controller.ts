@@ -143,7 +143,7 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         console.log(1);
         
         //const targetUserId = parseInt(req.params.id);
-        const { oldPassword, newPassword, newPasswordRepeat } = req.body;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
         const user = (await User.findOne(
             { 
                 where: {id: req.tokenData.userId},
@@ -158,8 +158,6 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
             }
             
         ))!;
-        console.log(oldPassword, newPassword, newPasswordRepeat, user.password)
-        console.log(user)
 
         // const targetUser = await User.findOneBy({ id: targetUserId });
         // if (!targetUser) {
@@ -170,7 +168,7 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         //         }
         //     );
         // }
-        if (newPassword !== newPasswordRepeat) {
+        if (newPassword !== confirmPassword) {
             console.log(2);
             return res.status(400).json(
                 { 
@@ -350,7 +348,14 @@ export const deleteUserById = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        if (targetUser.role.name === "super_admin" || targetUser.role.name === "admin") {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Cannot delete an admin user" 
+                }
+            );
+        }
         await User.delete({ id: targetUserId });
         return res.status(200).json( //200 or 204?
             { 
@@ -371,4 +376,43 @@ export const deleteUserById = async (req: Request, res: Response) => {
 
     }
 };
+
+export const getArtists = async (req: Request, res: Response) => {
+    try {
+        const artists = await User.find(
+            {
+                where: { role: 
+                    {
+                        id: 3
+                    } 
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            }
+        );
+
+        return res.status(200).json(
+            { 
+                success: true, 
+                message: "Artists retrieved successfully", 
+                data: artists 
+            }
+        );
+
+    } catch (error) {
+        return res.status(500).json(
+            { 
+                success: false, 
+                message: "Error fetching artists", 
+                error: error 
+            }
+        );
+    }
+}
     

@@ -125,12 +125,14 @@ export const login = async (req: Request, res: Response) => {
         if (await comparePassword(password, user.password)) {
             //generate token
             const token = jwt.sign(
-                { userId: user.id,
-                  roleName: user.role.name
+                {   
+                    userId: user.id,
+                    roleName: user.role.name,
+                    name: user.name
                 },
                 process.env.JWT_SECRET as string,
                 { 
-                    expiresIn: "2h" 
+                    // expiresIn: "2h" 
                 }
             );
             return res.status(200).json(
