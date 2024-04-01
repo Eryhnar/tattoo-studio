@@ -143,7 +143,7 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         console.log(1);
         
         //const targetUserId = parseInt(req.params.id);
-        const { oldPassword, newPassword, newPasswordRepeat } = req.body;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
         const user = (await User.findOne(
             { 
                 where: {id: req.tokenData.userId},
@@ -158,8 +158,6 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
             }
             
         ))!;
-        console.log(oldPassword, newPassword, newPasswordRepeat, user.password)
-        console.log(user)
 
         // const targetUser = await User.findOneBy({ id: targetUserId });
         // if (!targetUser) {
@@ -170,7 +168,7 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         //         }
         //     );
         // }
-        if (newPassword !== newPasswordRepeat) {
+        if (newPassword !== confirmPassword) {
             console.log(2);
             return res.status(400).json(
                 { 
