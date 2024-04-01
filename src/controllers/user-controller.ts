@@ -350,7 +350,14 @@ export const deleteUserById = async (req: Request, res: Response) => {
                 }
             );
         }
-
+        if (targetUser.role.name === "super_admin" || targetUser.role.name === "admin") {
+            return res.status(403).json(
+                { 
+                    success: false, 
+                    message: "Cannot delete an admin user" 
+                }
+            );
+        }
         await User.delete({ id: targetUserId });
         return res.status(200).json( //200 or 204?
             { 
