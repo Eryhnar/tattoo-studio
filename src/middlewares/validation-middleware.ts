@@ -273,8 +273,12 @@ export const serviceExists = async (req: Request, res: Response, next: NextFunct
 }
 
 export const validatePassword = (req: Request, res: Response, next: NextFunction) => {
-    const { oldPassword, newPassword, newPasswordRepeat } = req.body;
+    const { oldPassword, newPassword, newPasswordRepeat, password } = req.body;
 
+    // Validate passwords for registration
+    if (password && !isValidPasswordFormat(password)) {
+        return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
+    }
     // Validate old passwords for password update
     if (oldPassword && !isValidPasswordFormat(oldPassword)) {
         return res.status(400).json({ success: false, message: "Old password must contain at least one uppercase letter, one lowercase letter, one number, and must be between 8 and 14 characters long" });
