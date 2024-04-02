@@ -1,10 +1,10 @@
 USE tattoo_studio;
 
 INSERT INTO users (name, surname, email, password, is_active, created_at, updated_at, role_id) VALUES 
-('User', 'user@user.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 4)
-('Admin', 'admin@admin.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 2)
-('Artist', 'artist@artist.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 3)
-('SuperAdmin', 'super_admin@super_admin.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 1)
+('User', NULL, 'user@user.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 4),
+('Admin', NULL, 'admin@admin.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 2),
+('Artist', NULL, 'artist@artist.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 3),
+('SuperAdmin', NULL, 'super_admin@super_admin.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 1),
 ('User1', 'Surname1', 'user1@example.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 1),
 ('User2', 'Surname2', 'user2@example.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 2),
 ('User3', NULL, 'user3@example.com', '$10$T/gxJStI8kOS9INXzov5IOT8Pp8DzIa.UEKVDrTUVSFm1asPFYOuy', true, NOW(), NOW(), 3),
