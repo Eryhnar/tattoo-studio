@@ -127,9 +127,9 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
         //     return res.status(400).json({ success: false, message: "Invalid email" });
         // }
 
-        await User.update({ id: userId }, updateFields);
+        const updatedUser = await User.update({ id: userId }, updateFields);
 
-        return res.status(200).json({ success: true, message: "User updated successfully" });
+        return res.status(200).json({ success: true, message: "User updated successfully", data: updatedUser});
 
     } catch (error) {
 
@@ -140,7 +140,6 @@ export const updateProfile = async (req: Request, res: Response) => { //update m
 
 export const updateProfilePassword = async (req: Request, res: Response) => {
     try {
-        console.log(1);
         
         //const targetUserId = parseInt(req.params.id);
         const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -168,8 +167,16 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         //         }
         //     );
         // }
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json(
+                { 
+                    success: false, 
+                    message: "Please provide all required fields" 
+                }
+            );
+        }
+        
         if (newPassword !== confirmPassword) {
-            console.log(2);
             return res.status(400).json(
                 { 
                     success: false, 
@@ -187,7 +194,6 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         // };
 
         if (!await comparePassword(oldPassword, user.password)) {
-            console.log(3);
             return res.status(400).json(
                 { 
                     success: false, 
@@ -195,7 +201,6 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
                 }
             );
         }
-        console.log(4);
         const newHash = await bcrypt.hash(newPassword, 10);
         User.update({ id: user.id }, { password: newHash });
         return res.status(200).json(
@@ -206,7 +211,6 @@ export const updateProfilePassword = async (req: Request, res: Response) => {
         );
 
     } catch (error) {
-        console.log(5);
         return res.status(500).json(
             { 
                 success: false, 
